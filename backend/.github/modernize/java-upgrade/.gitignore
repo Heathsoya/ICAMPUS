@@ -1,0 +1,107 @@
+
+# 编译输出
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE 配置
+.idea/
+*.iml
+*.ipr
+*.iws
+.settings/
+.project
+.classpath
+.factorypath
+
+# 日志与崩溃文件
+*.log
+logs/
+hs_err_pid*
+*.hprof
+
+
+# Node.js / React（前端）
+# 依赖目录
+node_modules/
+.pnp/
+.pnp.js
+
+# 构建产物
+dist/
+dist-ssr/
+build/
+*.local
+.vite/
+
+# 测试覆盖率
+coverage/
+
+# 调试日志
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+
+#Python（爬虫）
+# 缓存与虚拟环境
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+env/
+ENV/
+
+# 分发/打包
+*.egg-info/
+.eggs/
+*.egg
+.Python
+build/
+develop-eggs/
+dist/
+sdist/
+wheels/
+
+# 测试与类型检查缓存
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+*.cover
+htmlcov/
+
+# 敏感配置
+
+# 包含数据库密码、大模型 API Key、JWT 密钥等
+.env
+.env.local
+.env.*.local
+application-local.yml
+application-prod.yml
+secrets.yml
+
+#操作系统垃圾文件
+
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+#编辑器临时文件
+*.swp
+*.swo
+*~
+.vscode/*
+!.vscode/extensions.json   # 如果团队需要统一推荐插件，可以保留这个文件
+!.vscode/settings.json   # 如果团队需要统一 VSCode 设置（如 Maven 路径），可以保留
