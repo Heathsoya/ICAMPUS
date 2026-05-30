@@ -1,7 +1,9 @@
-const baseUrl = "http://localhost:8080";
+const baseUrl = "";
 
 const tabs = document.querySelectorAll(".tab");
 const panels = document.querySelectorAll(".panel");
+const csvInput = document.getElementById("csvInput");
+const fileName = document.getElementById("fileName");
 
 tabs.forEach((tab) => {
   tab.addEventListener("click", () => {
@@ -13,6 +15,17 @@ tabs.forEach((tab) => {
   });
 });
 
+async function requestJson(path, options = {}) {
+  const res = await fetch(baseUrl + path, options);
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok || data.code !== 200) {
+    throw new Error(data.message || "请求失败");
+  }
+
+  return data.data;
+}
+
 document.getElementById("loginBtn").addEventListener("click", async () => {
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value;
@@ -23,28 +36,46 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
   }
 
   try {
-    await fetch(baseUrl + "/api/auth/login", {
+    const data = await requestJson("/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        username,
-        password
-      })
+      body: JSON.stringify({ username, password })
     });
 
-    alert("模拟登录成功");
+    localStorage.setItem("token", data.token);
+    alert("登录成功，已获取模拟 token");
   } catch (error) {
-    alert("登录失败");
+    alert(error.message);
   }
 });
 
-document.getElementById("registerBtn").addEventListener("click", () => {
-  alert("模拟注册成功");
+document.getElementById("registerBtn").addEventListener("click", async () => {
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value;
+
+  if (username === "" || password === "") {
+    alert("请输入账号密码");
+    return;
+  }
+
+  try {
+    await requestJson("/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ username, password })
+    });
+
+    alert("注册成功");
+  } catch (error) {
+    alert(error.message);
+  }
 });
 
-document.getElementById("askBtn").addEventListener("click", () => {
+document.getElementById("askBtn").addEventListener("click", async () => {
   const question = document.getElementById("question").value.trim();
   const answer = document.getElementById("answer");
 
@@ -53,34 +84,64 @@ document.getElementById("askBtn").addEventListener("click", () => {
     return;
   }
 
-  if (question.includes("食堂")) {
-    answer.value = "学校食堂一般晚上九点左右关门";
-  } else if (question.includes("图书馆")) {
-    answer.value = "图书馆一般不建议带饮料";
-  } else if (question.includes("校园卡")) {
-    answer.value = "校园卡丢失后需要及时挂失";
-  } else {
-    answer.value = "暂无相关回答";
+  answer.value = "正在请求后端接口...";
+
+  try {
+    const data = await requestJson("/api/qa/ask", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ question })
+    });
+
+    answer.value = data.answer;
+  } catch (error) {
+    answer.value = error.message;
   }
 });
 
-document.getElementById("loadBtn").addEventListener("click", () => {
-  const data = [
-    { id: "1", question: "食堂几点关门", category: "食堂" },
-    { id: "2", question: "图书馆可以带饮料吗", category: "图书馆" },
-    { id: "3", question: "校园卡丢了怎么办", category: "校园卡" }
-  ];
-
-  renderTable(data);
-  alert("获取数据成功");
+document.getElementById("loadBtn").addEventListener("click", async () => {
+  try {
+    const data = await requestJson("/api/questions");
+    renderTable(data);
+  } catch (error) {
+    alert(error.message);
+  }
 });
 
 document.getElementById("chooseBtn").addEventListener("click", () => {
-  document.getElementById("csvInput").click();
+  csvInput.click();
 });
 
-document.getElementById("uploadBtn").addEventListener("click", () => {
-  alert("模拟上传成功");
+csvInput.addEventListener("change", () => {
+  const file = csvInput.files[0];
+  fileName.textContent = file ? `已选择：${file.name}` : "CSV格式：question,category,answer";
+});
+
+document.getElementById("uploadBtn").addEventListener("click", async () => {
+  const file = csvInput.files[0];
+
+  if (!file) {
+    alert("请先选择CSV文件");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const data = await requestJson("/api/questions/upload", {
+      method: "POST",
+      body: formData
+    });
+
+    alert(`上传成功，新增 ${data.count} 条数据`);
+    const list = await requestJson("/api/questions");
+    renderTable(list);
+  } catch (error) {
+    alert(error.message);
+  }
 });
 
 function renderTable(data) {
