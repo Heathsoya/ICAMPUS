@@ -38,7 +38,7 @@ public class AdminController {
      */
     @GetMapping("/audit")
     public ApiResponse<List<AuditItemVO>> auditList(
-            @RequestParam(required = false) String status) {
+            @RequestParam(name = "status", required = false) String status) {
         List<AuditItemVO> list = adminService.getAuditList(status);
         return ApiResponse.success(list);
     }

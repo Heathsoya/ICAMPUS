@@ -83,7 +83,7 @@ public class QnaController {
      */
     @GetMapping("/hot")
     public ApiResponse<List<HotItemVO>> hotQuestions(
-            @RequestParam(defaultValue = "10") int limit) {
+            @RequestParam(name = "limit", defaultValue = "10") int limit) {
         return ApiResponse.success(qnaService.getHotQuestions(Math.min(limit, 50)));
     }
 }
