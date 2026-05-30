@@ -1,9 +1,9 @@
 package com.icampus.api.controller;
 
 import com.icampus.api.config.CurrentUserId;
-import com.icampus.api.dto.request.ContributionRequest;
-import com.icampus.api.dto.response.ContributionVO;
-import com.icampus.api.service.ContributionService;
+import com.icampus.app.dto.request.ContributionRequest;
+import com.icampus.app.dto.response.ContributionVO;
+import com.icampus.app.service.ContributionService;
 import com.icampus.core.ApiResponse;
 import com.icampus.core.BizCode;
 import com.icampus.core.BizException;

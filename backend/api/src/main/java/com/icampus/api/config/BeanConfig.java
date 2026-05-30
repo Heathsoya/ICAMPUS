@@ -1,9 +1,9 @@
 package com.icampus.api.config;
 
-import com.icampus.api.service.AdminService;
-import com.icampus.api.service.AuthService;
-import com.icampus.api.service.ContributionService;
-import com.icampus.api.service.QnaService;
+import com.icampus.app.service.AdminService;
+import com.icampus.app.service.AuthService;
+import com.icampus.app.service.ContributionService;
+import com.icampus.app.service.QnaService;
 import com.icampus.domain.repository.AnswerFeedbackRepository;
 import com.icampus.domain.repository.ContributionRepository;
 import com.icampus.domain.repository.KnowledgeBaseRepository;

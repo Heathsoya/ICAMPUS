@@ -1,8 +1,8 @@
 package com.icampus.api.controller;
 
-import com.icampus.api.dto.request.AuditRequest;
-import com.icampus.api.dto.response.AuditItemVO;
-import com.icampus.api.service.AdminService;
+import com.icampus.app.dto.request.AuditRequest;
+import com.icampus.app.dto.response.AuditItemVO;
+import com.icampus.app.service.AdminService;
 import com.icampus.core.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;

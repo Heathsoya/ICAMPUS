@@ -1,10 +1,10 @@
 package com.icampus.api.controller;
 
-import com.icampus.api.dto.request.LoginRequest;
-import com.icampus.api.dto.request.RegisterRequest;
-import com.icampus.api.dto.response.LoginVO;
-import com.icampus.api.dto.response.RegisterVO;
-import com.icampus.api.service.AuthService;
+import com.icampus.app.dto.request.LoginRequest;
+import com.icampus.app.dto.request.RegisterRequest;
+import com.icampus.app.dto.response.LoginVO;
+import com.icampus.app.dto.response.RegisterVO;
+import com.icampus.app.service.AuthService;
 import com.icampus.core.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
