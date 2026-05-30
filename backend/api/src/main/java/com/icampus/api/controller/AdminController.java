@@ -1,7 +1,7 @@
 package com.icampus.api.controller;
 
 import com.icampus.api.dto.request.AuditRequest;
-import com.icampus.api.dto.response.AuditItemResponse;
+import com.icampus.api.dto.response.AuditItemVO;
 import com.icampus.api.service.AdminService;
 import com.icampus.core.ApiResponse;
 import jakarta.validation.Valid;
@@ -37,9 +37,9 @@ public class AdminController {
      * </pre>
      */
     @GetMapping("/audit")
-    public ApiResponse<List<AuditItemResponse>> auditList(
+    public ApiResponse<List<AuditItemVO>> auditList(
             @RequestParam(required = false) String status) {
-        List<AuditItemResponse> list = adminService.getAuditList(status);
+        List<AuditItemVO> list = adminService.getAuditList(status);
         return ApiResponse.success(list);
     }
 

@@ -1,13 +1,16 @@
 package com.icampus.api.dto.response;
 
-public class HotQuestionResponse {
+/**
+ * QnaService.getHotList() 返回值
+ */
+public class HotItemVO {
 
     private String question;
     private Long count;
 
-    public HotQuestionResponse() {}
+    public HotItemVO() {}
 
-    public HotQuestionResponse(String question, Long count) {
+    public HotItemVO(String question, Long count) {
         this.question = question;
         this.count = count;
     }

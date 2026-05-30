@@ -2,8 +2,10 @@ package com.icampus.api.service;
 
 import com.icampus.api.dto.request.LoginRequest;
 import com.icampus.api.dto.request.RegisterRequest;
-import com.icampus.api.dto.response.LoginResponse;
-import com.icampus.core.BusinessException;
+import com.icampus.api.dto.response.LoginVO;
+import com.icampus.api.dto.response.RegisterVO;
+import com.icampus.core.BizCode;
+import com.icampus.core.BizException;
 import com.icampus.domain.entity.User;
 import com.icampus.domain.repository.UserRepository;
 import com.icampus.domain.spi.TokenProvider;
@@ -28,9 +30,9 @@ public class AuthService {
         this.tokenProvider = tokenProvider;
     }
 
-    public User register(RegisterRequest request) {
+    public RegisterVO register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new BusinessException("用户名已被注册");
+            throw new BizException(BizCode.USERNAME_EXISTS);
         }
 
         User user = new User();
@@ -42,35 +44,35 @@ public class AuthService {
 
         User saved = userRepository.save(user);
         log.info("新用户注册: {}", saved.getUsername());
-        return saved;
+        return new RegisterVO(saved.getId(), saved.getUsername());
     }
 
-    public LoginResponse login(LoginRequest request) {
+    public LoginVO login(LoginRequest request) {
         Optional<User> userOpt = userRepository.findByUsername(request.getUsername().trim());
         if (userOpt.isEmpty()) {
-            throw new BusinessException(401, "用户名或密码错误");
+            throw new BizException(BizCode.LOGIN_FAILED);
         }
 
         User user = userOpt.get();
         if (!verifyPassword(request.getPassword(), user.getPassword())) {
-            throw new BusinessException(401, "用户名或密码错误");
+            throw new BizException(BizCode.LOGIN_FAILED);
         }
 
         String token = tokenProvider.generateToken(user.getId(), user.getUsername(), user.getRole());
 
-        LoginResponse response = new LoginResponse();
-        response.setToken(token);
-        response.setRole(user.getRole());
-        response.setUserId(user.getId());
-        response.setUsername(user.getUsername());
+        LoginVO vo = new LoginVO();
+        vo.setToken(token);
+        vo.setRole(user.getRole());
+        vo.setUserId(user.getId());
+        vo.setUsername(user.getUsername());
 
         log.info("用户登录成功: {}", user.getUsername());
-        return response;
+        return vo;
     }
 
     public User findById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException(404, "用户不存在"));
+                .orElseThrow(() -> new BizException(BizCode.NOT_FOUND));
     }
 
     private String hashPassword(String plainPassword) {

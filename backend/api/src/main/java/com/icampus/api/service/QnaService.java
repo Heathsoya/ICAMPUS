@@ -2,10 +2,12 @@ package com.icampus.api.service;
 
 import com.icampus.api.dto.request.AskRequest;
 import com.icampus.api.dto.request.FeedbackRequest;
-import com.icampus.api.dto.response.AskResponse;
-import com.icampus.api.dto.response.HotQuestionResponse;
+import com.icampus.api.dto.response.AskVO;
+import com.icampus.api.dto.response.FeedbackVO;
+import com.icampus.api.dto.response.HotItemVO;
 import com.icampus.api.dto.response.RelatedQuestion;
-import com.icampus.core.BusinessException;
+import com.icampus.core.BizCode;
+import com.icampus.core.BizException;
 import com.icampus.domain.entity.AnswerFeedback;
 import com.icampus.domain.entity.KnowledgeBase;
 import com.icampus.domain.entity.QuestionLog;
@@ -50,7 +52,7 @@ public class QnaService {
     /**
      * 核心问答流程
      */
-    public AskResponse ask(AskRequest request, Long userId) {
+    public AskVO ask(AskRequest request, Long userId) {
         String userQuestion = request.getQuestion().trim();
         log.info("用户提问 [userId={}]: {}", userId, userQuestion);
 
@@ -108,25 +110,30 @@ public class QnaService {
         QuestionLog saved = questionLogRepository.save(logEntry);
 
         // ====== 组装响应 ======
-        AskResponse response = new AskResponse();
-        response.setAnswer(finalAnswer);
-        response.setMatchedQuestion(matchedQuestion);
-        response.setCategory(analysis.getCategory());
-        response.setConfidence(confidence);
-        response.setAnswerSource(answerSource.name());
-        response.setRelatedQuestions(relatedQuestions);
-        response.setQuestionLogId(saved.getId());
+        AskVO vo = new AskVO();
+        vo.setAnswer(finalAnswer);
+        vo.setMatchedQuestion(matchedQuestion);
+        vo.setCategory(analysis.getCategory());
+        vo.setConfidence(confidence);
+        vo.setAnswerSource(answerSource.name());
+        vo.setRelatedQuestions(relatedQuestions);
+        vo.setQuestionLogId(saved.getId());
 
-        return response;
+        return vo;
     }
 
     /**
      * 提交答案反馈
      */
-    public void submitFeedback(FeedbackRequest request, Long userId) {
+    public FeedbackVO submitFeedback(FeedbackRequest request, Long userId) {
         QuestionLog questionLog = questionLogRepository.findById(request.getQuestionLogId());
         if (questionLog == null) {
-            throw new BusinessException(404, "问答日志不存在");
+            throw new BizException(BizCode.QUESTION_LOG_NOT_FOUND);
+        }
+
+        // 防重复提交
+        if (answerFeedbackRepository.existsByQuestionLogId(request.getQuestionLogId())) {
+            throw new BizException(BizCode.ALREADY_FEEDBACK);
         }
 
         AnswerFeedback feedback = new AnswerFeedback();
@@ -138,15 +145,16 @@ public class QnaService {
         answerFeedbackRepository.save(feedback);
 
         log.info("用户反馈 [questionLogId={}, helpful={}]", request.getQuestionLogId(), request.getHelpful());
+        return new FeedbackVO(feedback.getId(), true);
     }
 
     /**
      * 热点问题 Top-N
      */
-    public List<HotQuestionResponse> getHotQuestions(int limit) {
+    public List<HotItemVO> getHotQuestions(int limit) {
         List<Object[]> results = questionLogRepository.findHotQuestions(limit);
         return results.stream()
-                .map(row -> new HotQuestionResponse((String) row[0], (Long) row[1]))
+                .map(row -> new HotItemVO((String) row[0], (Long) row[1]))
                 .collect(Collectors.toList());
     }
 

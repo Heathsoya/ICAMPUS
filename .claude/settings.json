@@ -23,7 +23,19 @@
       "Bash(cp e:/campus/ICAMPUS/backend/app/src/main/java/com/icampus/app/dto/response/*.java e:/campus/ICAMPUS/backend/api/src/main/java/com/icampus/api/dto/response/)",
       "Bash(cp e:/campus/ICAMPUS/backend/app/src/main/java/com/icampus/app/service/*.java e:/campus/ICAMPUS/backend/api/src/main/java/com/icampus/api/service/)",
       "Bash(git add *)",
-      "Bash(git commit -m 'feat: api 模块 — REST Controller / JWT认证 / 参数校验 / 统一响应包装 / 全局异常处理 *)"
+      "Bash(git commit -m 'feat: api 模块 — REST Controller / JWT认证 / 参数校验 / 统一响应包装 / 全局异常处理 *)",
+      "Bash(git config *)",
+      "Bash(git push *)",
+      "Bash(ping -n 1 github.com)",
+      "Bash(where gh *)",
+      "Bash(env)",
+      "Bash(netstat -ano)",
+      "Bash(findstr \"LISTEN\")",
+      "Bash(findstr \"127.0.0.1\")",
+      "Bash(GIT_TRACE=1 GIT_CURL_VERBOSE=1 git push origin main)",
+      "Bash(git pull *)",
+      "Bash(ping -n 2 github.com)",
+      "Bash(netsh winhttp *)"
     ]
   }
 }

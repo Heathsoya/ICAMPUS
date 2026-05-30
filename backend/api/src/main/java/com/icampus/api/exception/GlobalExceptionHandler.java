@@ -1,7 +1,7 @@
 package com.icampus.api.exception;
 
 import com.icampus.core.ApiResponse;
-import com.icampus.core.BusinessException;
+import com.icampus.core.BizException;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +27,8 @@ public class GlobalExceptionHandler {
 
     // ========== 业务异常 ==========
 
-    @ExceptionHandler(BusinessException.class)
-    public ApiResponse<Void> handleBusinessException(BusinessException ex) {
+    @ExceptionHandler(BizException.class)
+    public ApiResponse<Void> handleBizException(BizException ex) {
         log.warn("业务异常 [code={}]: {}", ex.getCode(), ex.getMessage());
         return ApiResponse.error(ex.getCode(), ex.getMessage());
     }

@@ -1,6 +1,9 @@
 package com.icampus.api.service;
 
 import com.icampus.api.dto.request.ContributionRequest;
+import com.icampus.api.dto.response.ContributionVO;
+import com.icampus.core.BizCode;
+import com.icampus.core.BizException;
 import com.icampus.domain.entity.Contribution;
 import com.icampus.domain.enums.AuditStatusEnum;
 import com.icampus.domain.repository.ContributionRepository;
@@ -22,7 +25,12 @@ public class ContributionService {
         this.contributionRepository = contributionRepository;
     }
 
-    public Contribution submit(ContributionRequest request, Long userId) {
+    public ContributionVO submit(ContributionRequest request, Long userId) {
+        // 敏感词检测
+        if (containsSensitiveWord(request.getQuestion()) || containsSensitiveWord(request.getAnswer())) {
+            throw new BizException(BizCode.SENSITIVE_WORD);
+        }
+
         Contribution contribution = new Contribution();
         contribution.setUserId(userId);
         contribution.setQuestion(request.getQuestion().trim());
@@ -33,6 +41,11 @@ public class ContributionService {
 
         Contribution saved = contributionRepository.save(contribution);
         log.info("用户提交知识贡献 [userId={}, id={}]", userId, saved.getId());
-        return saved;
+        return new ContributionVO(saved.getId(), saved.getStatus());
+    }
+
+    private boolean containsSensitiveWord(String text) {
+        // TODO: 对接敏感词库
+        return false;
     }
 }

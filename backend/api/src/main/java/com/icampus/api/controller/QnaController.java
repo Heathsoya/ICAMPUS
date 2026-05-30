@@ -3,8 +3,9 @@ package com.icampus.api.controller;
 import com.icampus.api.config.CurrentUserId;
 import com.icampus.api.dto.request.AskRequest;
 import com.icampus.api.dto.request.FeedbackRequest;
-import com.icampus.api.dto.response.AskResponse;
-import com.icampus.api.dto.response.HotQuestionResponse;
+import com.icampus.api.dto.response.AskVO;
+import com.icampus.api.dto.response.FeedbackVO;
+import com.icampus.api.dto.response.HotItemVO;
 import com.icampus.api.service.QnaService;
 import com.icampus.core.ApiResponse;
 import jakarta.validation.Valid;
@@ -54,10 +55,9 @@ public class QnaController {
      * </pre>
      */
     @PostMapping("/ask")
-    public ApiResponse<AskResponse> ask(@Valid @RequestBody AskRequest request,
-                                         @CurrentUserId Long userId) {
-        AskResponse response = qnaService.ask(request, userId);
-        return ApiResponse.success(response);
+    public ApiResponse<AskVO> ask(@Valid @RequestBody AskRequest request,
+                                   @CurrentUserId Long userId) {
+        return ApiResponse.success(qnaService.ask(request, userId));
     }
 
     /**
@@ -69,10 +69,9 @@ public class QnaController {
      * </pre>
      */
     @PostMapping("/feedback")
-    public ApiResponse<Void> feedback(@Valid @RequestBody FeedbackRequest request,
-                                       @CurrentUserId Long userId) {
-        qnaService.submitFeedback(request, userId);
-        return ApiResponse.success();
+    public ApiResponse<FeedbackVO> feedback(@Valid @RequestBody FeedbackRequest request,
+                                             @CurrentUserId Long userId) {
+        return ApiResponse.success(qnaService.submitFeedback(request, userId));
     }
 
     /**
@@ -83,9 +82,8 @@ public class QnaController {
      * </pre>
      */
     @GetMapping("/hot")
-    public ApiResponse<List<HotQuestionResponse>> hotQuestions(
+    public ApiResponse<List<HotItemVO>> hotQuestions(
             @RequestParam(defaultValue = "10") int limit) {
-        List<HotQuestionResponse> list = qnaService.getHotQuestions(Math.min(limit, 50));
-        return ApiResponse.success(list);
+        return ApiResponse.success(qnaService.getHotQuestions(Math.min(limit, 50)));
     }
 }

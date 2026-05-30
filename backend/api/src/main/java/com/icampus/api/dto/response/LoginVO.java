@@ -1,6 +1,9 @@
 package com.icampus.api.dto.response;
 
-public class LoginResponse {
+/**
+ * AuthService.login() 返回值
+ */
+public class LoginVO {
 
     private String token;
     private String role;

@@ -1,8 +1,9 @@
 package com.icampus.api.service;
 
 import com.icampus.api.dto.request.AuditRequest;
-import com.icampus.api.dto.response.AuditItemResponse;
-import com.icampus.core.BusinessException;
+import com.icampus.api.dto.response.AuditItemVO;
+import com.icampus.core.BizCode;
+import com.icampus.core.BizException;
 import com.icampus.domain.entity.Contribution;
 import com.icampus.domain.enums.AuditStatusEnum;
 import com.icampus.domain.repository.ContributionRepository;
@@ -29,7 +30,7 @@ public class AdminService {
         this.userRepository = userRepository;
     }
 
-    public List<AuditItemResponse> getAuditList(String statusFilter) {
+    public List<AuditItemVO> getAuditList(String statusFilter) {
         List<Contribution> contributions;
         if (statusFilter != null && !statusFilter.isEmpty()) {
             contributions = contributionRepository.findByStatus(statusFilter);
@@ -45,21 +46,21 @@ public class AdminService {
     public void audit(AuditRequest request) {
         Contribution contribution = contributionRepository.findById(request.getId());
         if (contribution == null) {
-            throw new BusinessException(404, "贡献记录不存在");
+            throw new BizException(BizCode.CONTRIBUTION_NOT_FOUND);
         }
 
         try {
             AuditStatusEnum status = AuditStatusEnum.valueOf(request.getStatus().toUpperCase());
             contributionRepository.updateStatus(request.getId(), status.getCode(), request.getReason());
         } catch (IllegalArgumentException e) {
-            throw new BusinessException("无效的审核状态，可选值：approved / rejected");
+            throw new BizException(BizCode.INVALID_AUDIT_STATUS);
         }
 
         log.info("审核完成 [id={}, status={}]", request.getId(), request.getStatus());
     }
 
-    private AuditItemResponse toAuditItem(Contribution c) {
-        AuditItemResponse item = new AuditItemResponse();
+    private AuditItemVO toAuditItem(Contribution c) {
+        AuditItemVO item = new AuditItemVO();
         item.setId(c.getId());
         item.setQuestion(c.getQuestion());
         item.setAnswer(c.getAnswer());

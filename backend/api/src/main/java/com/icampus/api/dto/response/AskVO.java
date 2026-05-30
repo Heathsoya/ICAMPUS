@@ -2,7 +2,10 @@ package com.icampus.api.dto.response;
 
 import java.util.List;
 
-public class AskResponse {
+/**
+ * QnaService.ask() 返回值
+ */
+public class AskVO {
 
     private String answer;
     private String matchedQuestion;

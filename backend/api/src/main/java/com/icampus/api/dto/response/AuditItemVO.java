@@ -1,6 +1,9 @@
 package com.icampus.api.dto.response;
 
-public class AuditItemResponse {
+/**
+ * ContributionService.getAuditList() 返回值
+ */
+public class AuditItemVO {
 
     private Long id;
     private String question;

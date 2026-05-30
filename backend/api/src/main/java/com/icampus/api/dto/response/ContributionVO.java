@@ -1,13 +1,16 @@
 package com.icampus.api.dto.response;
 
-public class IdStatusResponse {
+/**
+ * ContributionService.submit() 返回值
+ */
+public class ContributionVO {
 
     private Long id;
     private String status;
 
-    public IdStatusResponse() {}
+    public ContributionVO() {}
 
-    public IdStatusResponse(Long id, String status) {
+    public ContributionVO(Long id, String status) {
         this.id = id;
         this.status = status;
     }
