@@ -12,4 +12,6 @@ public class ICampusApplication {
     public static void main(String[] args) {
         SpringApplication.run(ICampusApplication.class, args);
     }
-}
+}//你好
+//test
+//淘汰赛
