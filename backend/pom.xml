@@ -17,7 +17,6 @@
         <module>core</module>
         <module>domain</module>
         <module>infra</module>
-        <module>app</module>
         <module>api</module>
     </modules>
 

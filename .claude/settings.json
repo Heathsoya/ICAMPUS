@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn clean *)",
+      "Bash(where.exe mvn *)",
+      "Bash(\"/c/Users/shacknap/.vscode/extensions/vscjava.vscode-maven-0.45.3/resources/maven-wrapper/mvnw\" -v)",
+      "Bash(find /c -name \"mvn\" -o -name \"mvn.exe\")",
+      "Read(//c/Program Files/**)",
+      "Read(//c/Program Files \\(x86\\)/**)",
+      "Read(//d//**)",
+      "Bash(java -version)",
+      "Bash(where.exe javac *)",
+      "Bash(find \"/c/Program Files\" -name \"mvn.exe\" 2>/dev/null; find \"/c/Users/shacknap\" -name \"mvn.exe\" 2>/dev/null | head -5; find \"/c/Users/shacknap/.vscode\" -name \"mvn*\" 2>/dev/null | head -5)",
+      "Read(//c/Users/shacknap/**)",
+      "Read(//c/Users/shacknap/.vscode/**)",
+      "Bash(where.exe choco *)",
+      "Bash(where.exe scoop *)",
+      "Read(//c/ProgramData/chocolatey/**)",
+      "Bash(cmd.exe /c \"mvn -v\")",
+      "Bash(cmd.exe /c \"C:\\\\Users\\\\shacknap\\\\.vscode\\\\extensions\\\\vscjava.vscode-maven-0.45.3\\\\resources\\\\maven-wrapper\\\\mvnw.cmd clean compile\")",
+      "Bash(\"C:/Users/shacknap/.vscode/extensions/vscjava.vscode-maven-0.45.3/resources/maven-wrapper/mvnw.cmd\" clean *)",
+      "Bash(cp e:/campus/ICAMPUS/backend/app/src/main/java/com/icampus/app/dto/request/*.java e:/campus/ICAMPUS/backend/api/src/main/java/com/icampus/api/dto/request/)",
+      "Bash(cp e:/campus/ICAMPUS/backend/app/src/main/java/com/icampus/app/dto/response/*.java e:/campus/ICAMPUS/backend/api/src/main/java/com/icampus/api/dto/response/)",
+      "Bash(cp e:/campus/ICAMPUS/backend/app/src/main/java/com/icampus/app/service/*.java e:/campus/ICAMPUS/backend/api/src/main/java/com/icampus/api/service/)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'feat: api 模块 — REST Controller / JWT认证 / 参数校验 / 统一响应包装 / 全局异常处理 *)"
+    ]
+  }
+}
