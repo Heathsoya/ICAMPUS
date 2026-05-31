@@ -3,7 +3,7 @@ package com.icampus.api.config;
 import com.icampus.app.service.AdminService;
 import com.icampus.app.service.AuthService;
 import com.icampus.app.service.ContributionService;
-import com.icampus.app.service.QnaService;
+import com.icampus.app.qa.QnaService;
 import com.icampus.domain.repository.AnswerFeedbackRepository;
 import com.icampus.domain.repository.ContributionRepository;
 import com.icampus.domain.repository.KnowledgeBaseRepository;
@@ -88,13 +88,15 @@ public class BeanConfig {
     // ========== Services ==========
 
     @Bean
-    public QnaService qnaService(KnowledgeBaseRepository knowledgeBaseRepository,
-                                  QuestionLogRepository questionLogRepository,
-                                  AnswerFeedbackRepository answerFeedbackRepository,
-                                  LlmClient llmClient) {
-        return new QnaService(knowledgeBaseRepository, questionLogRepository,
-                answerFeedbackRepository, llmClient);
-    }
+            public com.icampus.app.qa.QnaService qnaService(KnowledgeBaseRepository knowledgeBaseRepository,
+                          QuestionLogRepository questionLogRepository,
+                          AnswerFeedbackRepository answerFeedbackRepository,
+                          LlmClient llmClient,
+                          com.icampus.app.qa.support.QuestionValidator questionValidator,
+                          com.icampus.app.qa.support.QuestionSegmenter questionSegmenter) {
+            return new com.icampus.app.qa.QnaService(knowledgeBaseRepository, questionLogRepository,
+                answerFeedbackRepository, llmClient, questionValidator, questionSegmenter);
+            }
 
     @Bean
     public AuthService authService(UserRepository userRepository,
