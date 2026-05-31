@@ -1,6 +1,7 @@
 # Maven build output
 target/
 **/target/
+bin/
 
 # Java compiled files
 *.class
@@ -12,6 +13,7 @@ target/
 # IDE files
 .vscode/
 .idea/
+.claude/
 *.iml
 
 # OS files
@@ -21,6 +23,8 @@ Thumbs.db
 # Logs
 *.log
 logs/
+.env
+application-local.yml
 
 # Temporary files
 *.tmp
