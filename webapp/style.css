@@ -10,9 +10,9 @@ body {
 }
 
 .app {
-  width: 900px;
-  min-height: 600px;
-  margin: 40px auto;
+  width: 1000px;
+  min-height: 650px;
+  margin: 35px auto;
   background: #fff;
   border-radius: 14px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
@@ -22,9 +22,14 @@ body {
 h1 {
   margin: 0;
   padding: 24px 32px;
-  font-size: 26px;
   background: #2f6feb;
   color: #fff;
+  font-size: 26px;
+}
+
+h2 {
+  margin-top: 0;
+  color: #2f6feb;
 }
 
 .tabs {
@@ -38,7 +43,7 @@ h1 {
   border: none;
   background: #f7f7f7;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 15px;
 }
 
 .tab.active {
@@ -54,7 +59,7 @@ h1 {
 
 .panel {
   display: none;
-  min-height: 390px;
+  min-height: 430px;
 }
 
 .panel.active {
@@ -64,80 +69,141 @@ h1 {
 .form-row {
   display: flex;
   align-items: center;
-  margin: 26px 0;
+  margin: 20px 0;
+}
+
+.form-row.top {
+  align-items: flex-start;
 }
 
 .form-row label {
   width: 100px;
-  font-size: 16px;
+  font-size: 15px;
 }
 
 input {
-  width: 260px;
-  height: 36px;
+  width: 320px;
+  height: 38px;
   padding: 0 10px;
   border: 1px solid #bbb;
   border-radius: 6px;
   font-size: 15px;
 }
 
+.role-box {
+  display: flex;
+  gap: 28px;
+}
+
+.role-box label {
+  width: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.role-box input {
+  width: auto;
+  height: auto;
+}
+
 .button-row {
   display: flex;
   gap: 12px;
   margin-left: 100px;
-  margin-top: 30px;
-}
-
-.button-row.left {
-  margin-left: 0;
-  margin-top: 0;
-  margin-bottom: 30px;
+  margin-top: 28px;
 }
 
 button {
-  min-width: 100px;
+  min-width: 90px;
   height: 36px;
   border: none;
   border-radius: 6px;
   background: #2f6feb;
   color: #fff;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 button:hover {
   background: #2459c9;
 }
 
-.qa-row {
+.gray-btn {
+  background: #777;
+}
+
+.gray-btn:hover {
+  background: #555;
+}
+
+.danger-btn {
+  background: #e55353;
+}
+
+.danger-btn:hover {
+  background: #c63d3d;
+}
+
+.tip {
+  margin: 18px 0 0 100px;
+  color: #666;
+  font-size: 14px;
+}
+
+.no-left {
+  margin-left: 0;
+}
+
+.qa-box {
   display: flex;
-  align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
-.qa-row label {
-  width: 90px;
+.qa-box input {
+  flex: 1;
 }
 
-.qa-row input {
-  width: 400px;
+.example-box {
+  margin-top: 18px;
+}
+
+.example-box span {
+  color: #666;
+  margin-right: 10px;
+}
+
+.example-question {
+  min-width: 110px;
+  background: #4e7fd8;
+  margin-right: 8px;
 }
 
 textarea {
   display: block;
-  width: 650px;
-  height: 250px;
-  margin-top: 42px;
+  width: 100%;
+  height: 220px;
+  margin-top: 24px;
   padding: 12px;
   resize: none;
   border: 1px solid #bbb;
   border-radius: 8px;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.8;
 }
 
+.feedback-box {
+  margin-top: 16px;
+}
+
+.feedback-box span {
+  color: #666;
+  margin-right: 10px;
+}
+
 table {
-  width: 650px;
+  width: 100%;
+  margin-top: 18px;
   border-collapse: collapse;
   background: #fff;
 }
@@ -153,7 +219,20 @@ th {
   background: #f0f3f9;
 }
 
-@media (max-width: 960px) {
+.user-card {
+  width: 420px;
+  padding: 20px;
+  background: #f6f8ff;
+  border-radius: 10px;
+  border: 1px solid #dce5ff;
+}
+
+.user-card p {
+  font-size: 16px;
+  line-height: 2;
+}
+
+@media (max-width: 1050px) {
   .app {
     width: calc(100% - 32px);
     margin: 16px auto;
@@ -163,12 +242,32 @@ th {
     padding: 24px;
   }
 
-  textarea,
-  table {
-    width: 100%;
+  .tabs {
+    flex-wrap: wrap;
   }
 
-  .qa-row {
+  .tab {
+    flex: 1 0 33.33%;
+  }
+
+  .form-row {
     flex-wrap: wrap;
+  }
+
+  .form-row label {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .button-row {
+    margin-left: 0;
+  }
+
+  .tip {
+    margin-left: 0;
+  }
+
+  input {
+    width: 100%;
   }
 }
