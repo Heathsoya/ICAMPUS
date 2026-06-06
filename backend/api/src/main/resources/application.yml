@@ -15,10 +15,17 @@ mybatis-plus:
     map-underscore-to-camel-case: true
   mapper-locations: classpath*:/mapper/**/*.xml
 
-# 大模型配置
+# 大模型配置（通义千问/DeepSeek 二选一）
 llm:
-  api-key: ${DEEPSEEK_API_KEY:demo}
-  model: deepseek-chat
+  provider: qwen
+  qwen:
+    api-key: ${QWEN_API_KEY:demo}
+    model: qwen-plus
+    url: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+  deepseek:
+    api-key: ${DEEPSEEK_API_KEY:demo}
+    model: deepseek-chat
+    url: https://api.deepseek.com/v1/chat/completions
 
 # JWT 配置
 jwt:

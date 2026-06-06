@@ -46,12 +46,20 @@ public class BeanConfig {
     // ========== LLM Client ==========
 
     @Bean
-    public LlmClient llmClient(@Value("${llm.api-key:demo}") String apiKey,
-                                @Value("${llm.model:deepseek-chat}") String model) {
-        if ("demo".equals(apiKey)) {
-            return new MockLlmClient();
+    public LlmClient llmClient(@Value("${llm.provider:qwen}") String provider,
+                                @Value("${llm.qwen.api-key:demo}") String qwenKey,
+                                @Value("${llm.qwen.model:qwen-plus}") String qwenModel,
+                                @Value("${llm.qwen.url:https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions}") String qwenUrl,
+                                @Value("${llm.deepseek.api-key:demo}") String dsKey,
+                                @Value("${llm.deepseek.model:deepseek-chat}") String dsModel,
+                                @Value("${llm.deepseek.url:https://api.deepseek.com/v1/chat/completions}") String dsUrl) {
+        if ("deepseek".equals(provider) && !"demo".equals(dsKey)) {
+            return new DeepSeekLlmClient(dsKey, dsModel, dsUrl);
         }
-        return new DeepSeekLlmClient(apiKey, model);
+        if (!"demo".equals(qwenKey)) {
+            return new DeepSeekLlmClient(qwenKey, qwenModel, qwenUrl);
+        }
+        return new MockLlmClient();
     }
 
     // ========== Services ==========
