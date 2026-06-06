@@ -1,1 +1,12 @@
+com\icampus\api\config\BeanConfig.class
+com\icampus\api\controller\AuthController.class
+com\icampus\api\config\CurrentUserIdArgumentResolver.class
+com\icampus\api\config\WebConfig.class
+com\icampus\api\controller\QnaController.class
+com\icampus\api\config\CurrentUserId.class
+com\icampus\api\security\JwtAuthenticationFilter.class
 com\icampus\ICampusApplication.class
+com\icampus\api\security\SecurityConfig.class
+com\icampus\api\exception\GlobalExceptionHandler.class
+com\icampus\api\controller\AdminController.class
+com\icampus\api\controller\ContributionController.class
