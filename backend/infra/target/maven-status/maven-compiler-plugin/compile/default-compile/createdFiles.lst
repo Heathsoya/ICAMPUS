@@ -25,4 +25,5 @@ com\icampus\infra\persistence\entity\QuestionLogDO.class
 com\icampus\infra\repository\impl\InMemoryUserRepository.class
 com\icampus\infra\repository\impl\MysqlQuestionLogRepository.class
 com\icampus\infra\persistence\entity\UserDO.class
+com\icampus\infra\llm\DeepSeekLlmClient.class
 com\icampus\infra\persistence\mapper\ContributionMapper.class

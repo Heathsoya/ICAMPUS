@@ -13,6 +13,7 @@ import com.icampus.domain.repository.QuestionLogRepository;
 import com.icampus.domain.repository.UserRepository;
 import com.icampus.domain.spi.LlmClient;
 import com.icampus.domain.spi.TokenProvider;
+import com.icampus.infra.llm.DeepSeekLlmClient;
 import com.icampus.infra.llm.MockLlmClient;
 import com.icampus.api.security.JwtAuthenticationFilter;
 import com.icampus.infra.security.JwtTokenProvider;
@@ -45,8 +46,12 @@ public class BeanConfig {
     // ========== LLM Client ==========
 
     @Bean
-    public LlmClient llmClient() {
-        return new MockLlmClient();
+    public LlmClient llmClient(@Value("${llm.api-key:demo}") String apiKey,
+                                @Value("${llm.model:deepseek-chat}") String model) {
+        if ("demo".equals(apiKey)) {
+            return new MockLlmClient();
+        }
+        return new DeepSeekLlmClient(apiKey, model);
     }
 
     // ========== Services ==========
