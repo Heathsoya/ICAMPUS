@@ -1,0 +1,31 @@
+# Maven build output
+target/
+**/target/
+bin/
+
+# Java compiled files
+*.class
+
+# Maven wrapper downloaded cache
+.mvn/wrapper/wrapper/dists/
+**/.mvn/wrapper/wrapper/dists/
+
+# IDE files
+.vscode/
+.idea/
+.claude/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+.env
+application-local.yml
+
+# Temporary files
+*.tmp
+*.temp
