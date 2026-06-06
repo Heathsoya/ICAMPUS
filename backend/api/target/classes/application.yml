@@ -4,6 +4,16 @@ server:
 spring:
   application:
     name: icampus-api
+  datasource:
+    url: jdbc:mysql://localhost:3306/icampus?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:123456}
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath*:/mapper/**/*.xml
 
 # JWT 配置
 jwt:

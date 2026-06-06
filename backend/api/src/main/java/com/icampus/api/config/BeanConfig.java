@@ -1,9 +1,11 @@
 package com.icampus.api.config;
 
+import com.icampus.app.qa.QnaService;
+import com.icampus.app.qa.support.QuestionSegmenter;
+import com.icampus.app.qa.support.QuestionValidator;
 import com.icampus.app.service.AdminService;
 import com.icampus.app.service.AuthService;
 import com.icampus.app.service.ContributionService;
-import com.icampus.app.qa.QnaService;
 import com.icampus.domain.repository.AnswerFeedbackRepository;
 import com.icampus.domain.repository.ContributionRepository;
 import com.icampus.domain.repository.KnowledgeBaseRepository;
@@ -18,12 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * Bean 装配配置
- * <p>
- * 手动装配无框架注解的应用服务。
- * Repository 由 infra 模块中的 MySQL @Repository 实现自动扫描注册。
- */
 @Configuration
 public class BeanConfig {
 
@@ -60,8 +56,8 @@ public class BeanConfig {
                                  QuestionLogRepository questionLogRepository,
                                  AnswerFeedbackRepository answerFeedbackRepository,
                                  LlmClient llmClient,
-                                 com.icampus.app.qa.support.QuestionValidator questionValidator,
-                                 com.icampus.app.qa.support.QuestionSegmenter questionSegmenter) {
+                                 QuestionValidator questionValidator,
+                                 QuestionSegmenter questionSegmenter) {
         return new QnaService(knowledgeBaseRepository, questionLogRepository,
                 answerFeedbackRepository, llmClient, questionValidator, questionSegmenter);
     }

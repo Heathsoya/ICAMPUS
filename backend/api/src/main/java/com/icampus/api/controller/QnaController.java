@@ -25,7 +25,7 @@ import java.util.List;
  * 问答流程：LLM分析问题 → 检索知识库 → LLM生成答案 → 记录日志。
  */
 @RestController
-@RequestMapping("/api/qa")
+@RequestMapping("/api/qna")
 public class QnaController {
 
     private final QnaService qnaService;
