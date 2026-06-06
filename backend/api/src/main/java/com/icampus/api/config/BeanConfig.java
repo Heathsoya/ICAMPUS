@@ -1,9 +1,11 @@
 package com.icampus.api.config;
 
+import com.icampus.app.qa.QnaService;
+import com.icampus.app.qa.support.QuestionSegmenter;
+import com.icampus.app.qa.support.QuestionValidator;
 import com.icampus.app.service.AdminService;
 import com.icampus.app.service.AuthService;
 import com.icampus.app.service.ContributionService;
-import com.icampus.app.qa.QnaService;
 import com.icampus.domain.repository.AnswerFeedbackRepository;
 import com.icampus.domain.repository.ContributionRepository;
 import com.icampus.domain.repository.KnowledgeBaseRepository;
@@ -11,6 +13,7 @@ import com.icampus.domain.repository.QuestionLogRepository;
 import com.icampus.domain.repository.UserRepository;
 import com.icampus.domain.spi.LlmClient;
 import com.icampus.domain.spi.TokenProvider;
+import com.icampus.infra.llm.DeepSeekLlmClient;
 import com.icampus.infra.llm.MockLlmClient;
 import com.icampus.api.security.JwtAuthenticationFilter;
 import com.icampus.infra.security.JwtTokenProvider;
@@ -18,12 +21,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * Bean 装配配置
- * <p>
- * 手动装配无框架注解的应用服务。
- * Repository 由 infra 模块中的 MySQL @Repository 实现自动扫描注册。
- */
 @Configuration
 public class BeanConfig {
 
@@ -49,8 +46,12 @@ public class BeanConfig {
     // ========== LLM Client ==========
 
     @Bean
-    public LlmClient llmClient() {
-        return new MockLlmClient();
+    public LlmClient llmClient(@Value("${llm.api-key:demo}") String apiKey,
+                                @Value("${llm.model:deepseek-chat}") String model) {
+        if ("demo".equals(apiKey)) {
+            return new MockLlmClient();
+        }
+        return new DeepSeekLlmClient(apiKey, model);
     }
 
     // ========== Services ==========
@@ -60,8 +61,8 @@ public class BeanConfig {
                                  QuestionLogRepository questionLogRepository,
                                  AnswerFeedbackRepository answerFeedbackRepository,
                                  LlmClient llmClient,
-                                 com.icampus.app.qa.support.QuestionValidator questionValidator,
-                                 com.icampus.app.qa.support.QuestionSegmenter questionSegmenter) {
+                                 QuestionValidator questionValidator,
+                                 QuestionSegmenter questionSegmenter) {
         return new QnaService(knowledgeBaseRepository, questionLogRepository,
                 answerFeedbackRepository, llmClient, questionValidator, questionSegmenter);
     }
