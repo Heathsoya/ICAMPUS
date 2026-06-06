@@ -17,7 +17,7 @@ mybatis-plus:
 
 # 大模型配置
 llm:
-  api-key: sk-30350ee9ba8748a1a4091cf3bae6801d
+  api-key: ${DEEPSEEK_API_KEY:demo}
   model: deepseek-chat
 
 # JWT 配置
