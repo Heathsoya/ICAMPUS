@@ -10,8 +10,8 @@ data/raw/
 logs/
 
 # 爬虫生成的文本、数据
-raw_*.txt
-*.csv
+
+
 *.json
 *.log
 
