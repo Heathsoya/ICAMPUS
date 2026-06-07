@@ -3,31 +3,47 @@
 const baseUrl = "";
 
 const tabs = document.querySelectorAll(".tab");
+const tabLinks = document.querySelectorAll(".tab-link");
 const panels = document.querySelectorAll(".panel");
 
 let lastQuestion = "";
 let lastAnswer = "";
+
+function switchPanel(targetId, activeTab) {
+  if (targetId === "audit-panel") {
+    const role = localStorage.getItem("role");
+    if (role !== "ADMIN") {
+      alert("只有管理员可以进入管理后台");
+      return;
+    }
+  }
+
+  tabs.forEach((item) => item.classList.remove("active"));
+  panels.forEach((panel) => panel.classList.remove("active"));
+
+  if (activeTab) {
+    activeTab.classList.add("active");
+  } else {
+    const matchedTab = document.querySelector(`.tab[data-target="${targetId}"]`);
+    if (matchedTab) matchedTab.classList.add("active");
+  }
+
+  document.getElementById(targetId).classList.add("active");
+  refreshUserInfo();
+}
 
 // 页面切换
 tabs.forEach((tab) => {
   tab.addEventListener("click", () => {
     const targetId = tab.dataset.target;
 
-    if (targetId === "audit-panel") {
-      const role = localStorage.getItem("role");
-      if (role !== "ADMIN") {
-        alert("只有管理员可以进入后台审核页面");
-        return;
-      }
-    }
+    switchPanel(targetId, tab);
+  });
+});
 
-    tabs.forEach((item) => item.classList.remove("active"));
-    panels.forEach((panel) => panel.classList.remove("active"));
-
-    tab.classList.add("active");
-    document.getElementById(targetId).classList.add("active");
-
-    refreshUserInfo();
+tabLinks.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    switchPanel(btn.dataset.target);
   });
 });
 
@@ -235,6 +251,8 @@ async function loadHotList() {
 
 function renderHotList(list) {
   const hotBody = document.getElementById("hotBody");
+  const hotCount = document.getElementById("hotCount");
+  if (hotCount) hotCount.textContent = list.length;
 
   if (list.length === 0) {
     hotBody.innerHTML = "<tr><td colspan='3'>暂无热点数据</td></tr>";
@@ -315,6 +333,10 @@ async function loadAuditList() {
 
 function renderAuditList(list) {
   const auditBody = document.getElementById("auditBody");
+  const pendingCount = document.getElementById("pendingCount");
+  const knowledgeCount = document.getElementById("knowledgeCount");
+  if (pendingCount) pendingCount.textContent = list.length;
+  if (knowledgeCount) knowledgeCount.textContent = "待接入";
 
   if (list.length === 0) {
     auditBody.innerHTML = "<tr><td colspan='5'>暂无待审核内容</td></tr>";
