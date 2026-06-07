@@ -4,11 +4,10 @@ env/
 .venv/
 .env/
 
-# Python 编译文件
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
+# 数据目录（生成文件不提交）
+data/processed/
+data/raw/
+logs/
 
 # 爬虫生成的文本、数据
 raw_*.txt
