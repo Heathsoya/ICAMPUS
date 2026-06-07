@@ -9,6 +9,12 @@ data/processed/
 data/raw/
 logs/
 
+# Python 缓存
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+
 # 爬虫生成的文本、数据
 
 
