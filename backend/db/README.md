@@ -94,31 +94,6 @@ cd api
 mvn spring-boot:run
 ```
 
-数据库账号通过环境变量配置，不要写死个人密码。
-
-PowerShell：
-
-```powershell
-$env:MYSQL_USERNAME="root"
-$env:MYSQL_PASSWORD="你的MySQL密码"
-```
-
-CMD：
-
-```cmd
-set MYSQL_USERNAME=root
-set MYSQL_PASSWORD=你的MySQL密码
-```
-
-默认值为 `root / 123456`，对应 `application.yml` 中的：
-
-```yaml
-spring:
-  datasource:
-    username: ${MYSQL_USERNAME:root}
-    password: ${MYSQL_PASSWORD:123456}
-```
-
 ## 测试账号
 
 - 管理员：`admin / admin123`
