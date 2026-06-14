@@ -1,67 +1,222 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>校园生活百事通</title>
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  <div class="app">
-    <h1>校园生活百事通</h1>
+  <div class="site-shell">
+    <header class="topbar">
+      <div class="brand tab active" data-target="home-panel" role="button" tabindex="0">
+        <span class="brand-mark">C</span>
+        <div>
+          <strong>校园生活百事通</strong>
+          <small>Campus Life Assistant</small>
+        </div>
+      </div>
 
-    <div class="tabs" role="tablist">
-      <button class="tab active" data-target="login-panel" role="tab">登录界面</button>
-      <button class="tab" data-target="qa-panel" role="tab">智能问答</button>
-      <button class="tab" data-target="data-panel" role="tab">批量获取数据</button>
-    </div>
+      <nav class="tabs" aria-label="主导航">
+        <button class="tab active" data-target="home-panel">首页</button>
+        <button class="tab" data-target="login-panel">登录/注册</button>
+        <button class="tab" data-target="hot-panel">热点榜</button>
+        <button class="tab user-tab" data-target="contribution-panel">用户贡献</button>
+        <button class="tab admin-tab" data-target="audit-panel">管理后台</button>
+        <button class="tab" data-target="center-panel">个人中心</button>
+      </nav>
+    </header>
 
     <main class="content">
-      <section id="login-panel" class="panel active" role="tabpanel">
-        <div class="form-row">
-          <label for="username">账号</label>
-          <input id="username" type="text" />
-        </div>
+      <!-- 首页问答 -->
+      <section id="home-panel" class="panel active">
+        <div class="hero">
+          <div class="hero-copy">
+            <p class="eyebrow">智慧校园问答系统</p>
+            <h1>让校园信息，像搜索一样简单。</h1>
+            <p class="hero-text">面向学生的校园生活服务入口，整合常见问答、热点问题、用户贡献与管理员审核，后续可继续接入知识库、爬虫数据和更多校园服务模块。</p>
+            <div class="hero-actions">
+              <button class="primary-action tab-link" data-target="login-panel">立即登录</button>
+              <button class="secondary-action tab-link" data-target="contribution-panel">提交问题</button>
+            </div>
+          </div>
 
-        <div class="form-row">
-          <label for="password">密码</label>
-          <input id="password" type="password" />
-        </div>
-
-        <div class="button-row">
-          <button id="loginBtn">登录</button>
-          <button id="registerBtn">注册</button>
+          <div class="hero-card">
+            <div class="search-title">智能问答</div>
+            <div class="qa-box hero-search">
+              <input id="question" type="text" placeholder="请输入你的问题，例如：食堂几点关门？">
+              <button id="askBtn">发送</button>
+            </div>
+            <div class="example-box">
+              <span>常用问题</span>
+              <button class="example-question">图书馆开放时间</button>
+              <button class="example-question">校园卡丢了怎么办</button>
+              <button class="example-question">宿舍报修流程</button>
+            </div>
+            <textarea id="answer" readonly placeholder="问答结果会显示在这里"></textarea>
+            <div class="feedback-box">
+              <span>答案反馈：</span>
+              <button id="goodBtn" class="light-btn">有帮助</button>
+              <button id="badBtn" class="light-btn">没帮助</button>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section id="qa-panel" class="panel" role="tabpanel">
-        <div class="qa-row">
-          <label for="question">请输入问题</label>
-          <input id="question" type="text" />
-          <button id="askBtn">发送</button>
+      <!-- 登录注册 -->
+      <section id="login-panel" class="panel">
+        <div class="section-head">
+          <p class="eyebrow">ACCOUNT</p>
+          <h2>系统登录 / 注册</h2>
+          <p>普通用户用于提问、反馈和贡献内容；管理员用于进入独立后台进行审核与数据查看。</p>
         </div>
 
-        <textarea id="answer" readonly></textarea>
+        <div class="form-card">
+          <div class="form-row">
+            <label>登录身份</label>
+            <div class="role-box">
+              <label><input type="radio" name="role" value="USER" checked> 普通用户</label>
+              <label><input type="radio" name="role" value="ADMIN"> 管理员</label>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label for="username">账号</label>
+            <input id="username" type="text" placeholder="请输入账号">
+          </div>
+
+          <div class="form-row">
+            <label for="password">密码</label>
+            <input id="password" type="password" placeholder="请输入密码">
+          </div>
+
+          <div class="button-row">
+            <button id="loginBtn">登录</button>
+            <button id="registerBtn" class="light-btn">注册账号</button>
+            <button id="logoutBtn" class="gray-btn">退出登录</button>
+          </div>
+        </div>
       </section>
 
-      <section id="data-panel" class="panel" role="tabpanel">
-        <div class="button-row left">
-          <button id="loadBtn">获取数据</button>
-          <button id="chooseBtn">选择CSV</button>
-          <button id="uploadBtn">上传CSV</button>
-          <input id="csvInput" type="file" accept=".csv" hidden />
+      <!-- 热点榜 -->
+      <section id="hot-panel" class="panel">
+        <div class="section-head row-head">
+          <div>
+            <p class="eyebrow">HOT QUESTIONS</p>
+            <h2>热点榜</h2>
+            <p>根据用户提问频率展示当前最关注的问题。</p>
+          </div>
+          <button id="loadHotBtn">加载热点问题</button>
         </div>
 
-        <table>
-          <thead>
-            <tr>
-              <th>id</th>
-              <th>question</th>
-              <th>category</th>
-            </tr>
-          </thead>
-          <tbody id="dataBody"></tbody>
-        </table>
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>排名</th>
+                <th>问题</th>
+                <th>热度</th>
+              </tr>
+            </thead>
+            <tbody id="hotBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 用户贡献 -->
+      <section id="contribution-panel" class="panel">
+        <div class="section-head">
+          <p class="eyebrow">CONTRIBUTION</p>
+          <h2>用户贡献</h2>
+          <p>用户可以补充问题和答案，审核通过后可进入知识库，提升系统回答能力。</p>
+        </div>
+
+        <div class="form-card wide-card">
+          <div class="form-row">
+            <label for="conQuestion">问题标题</label>
+            <input id="conQuestion" type="text" placeholder="请输入问题标题">
+          </div>
+
+          <div class="form-row top">
+            <label for="conAnswer">答案内容</label>
+            <textarea id="conAnswer" placeholder="请输入答案内容"></textarea>
+          </div>
+
+          <div class="form-row">
+            <label for="conCategory">分类</label>
+            <input id="conCategory" type="text" placeholder="例如：生活服务、学习资源">
+          </div>
+
+          <button id="submitConBtn">提交贡献</button>
+        </div>
+      </section>
+
+      <!-- 管理后台 -->
+      <section id="audit-panel" class="panel admin-panel">
+        <div class="admin-layout">
+          <aside class="admin-sidebar">
+            <h2>管理后台</h2>
+            <p>管理员独立工作台</p>
+            <button class="admin-menu active">数据概览</button>
+            <button class="admin-menu">内容审核</button>
+            <button class="admin-menu">知识库状态</button>
+          </aside>
+
+          <div class="admin-main">
+            <div class="section-head row-head">
+              <div>
+                <p class="eyebrow">ADMIN DASHBOARD</p>
+                <h2>后台数据总览</h2>
+                <p>管理员不再只是“能审核的普通用户”，这里单独展示后台数据、待审核内容和知识库状态。</p>
+              </div>
+              <button id="loadAuditBtn">加载审核列表</button>
+            </div>
+
+            <div class="stat-grid">
+              <div class="stat-card">
+                <span id="pendingCount">--</span>
+                <p>待审核内容</p>
+              </div>
+              <div class="stat-card">
+                <span id="knowledgeCount">--</span>
+                <p>知识库条目</p>
+              </div>
+              <div class="stat-card">
+                <span id="hotCount">--</span>
+                <p>热点问题</p>
+              </div>
+            </div>
+
+            <div class="table-card">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>问题</th>
+                    <th>提交用户</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="auditBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 个人中心 -->
+      <section id="center-panel" class="panel">
+        <div class="section-head">
+          <p class="eyebrow">PROFILE</p>
+          <h2>个人中心</h2>
+        </div>
+
+        <div class="user-card">
+          <p>当前账号：<span id="currentUser">未登录</span></p>
+          <p>当前身份：<span id="currentRole">游客</span></p>
+          <p>Token 状态：<span id="tokenState">无 Token</span></p>
+        </div>
       </section>
     </main>
   </div>

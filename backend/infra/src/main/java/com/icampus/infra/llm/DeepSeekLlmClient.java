@@ -21,14 +21,15 @@ import java.util.stream.Collectors;
 public class DeepSeekLlmClient implements LlmClient {
 
     private static final Logger log = LoggerFactory.getLogger(DeepSeekLlmClient.class);
-    private static final String API_URL = "https://api.deepseek.com/v1/chat/completions";
     private static final Duration TIMEOUT = Duration.ofSeconds(30);
 
     private final WebClient webClient;
+    private final String apiUrl;
     private final String model;
 
-    public DeepSeekLlmClient(String apiKey, String model) {
+    public DeepSeekLlmClient(String apiKey, String model, String apiUrl) {
         this.model = model != null ? model : "deepseek-chat";
+        this.apiUrl = apiUrl != null ? apiUrl : "https://api.deepseek.com/v1/chat/completions";
         this.webClient = WebClient.builder()
                 .defaultHeader("Authorization", "Bearer " + apiKey)
                 .defaultHeader("Content-Type", "application/json")
@@ -95,7 +96,7 @@ public class DeepSeekLlmClient implements LlmClient {
         );
 
         Map<String, Object> resp = webClient.post()
-                .uri(API_URL)
+                .uri(apiUrl)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(body)
                 .retrieve()
