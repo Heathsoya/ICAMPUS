@@ -1,58 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-         http://maven.apache.org/xsd/maven-4.0.0.xsd">
-<modelVersion>4.0.0</modelVersion>
-<parent>
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <groupId>com.icampus</groupId>
-    <artifactId>icampus-backend</artifactId>
+    <artifactId>icampus</artifactId>
     <version>1.0.0</version>
-</parent>
-<artifactId>api</artifactId>
-<packaging>jar</packaging>
-<dependencies>
-    <dependency>
-        <groupId>com.icampus</groupId>
-        <artifactId>app</artifactId>
-        <version>1.0.0</version>
-    </dependency>
-    <dependency>
-        <groupId>com.icampus</groupId>
-        <artifactId>infra</artifactId>
-        <version>1.0.0</version>
-    </dependency>
-    <dependency>
-        <groupId>com.icampus</groupId>
-        <artifactId>domain</artifactId>
-        <version>1.0.0</version>
-    </dependency>
-    <dependency>
-        <groupId>com.icampus</groupId>
-        <artifactId>core</artifactId>
-        <version>1.0.0</version>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-test</artifactId>
-        <scope>test</scope>
-    </dependency>
-</dependencies>
-<build>
-    <plugins>
-        <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-            <executions>
-                <execution>
-                    <goals><goal>repackage</goal></goals>
-                </execution>
-            </executions>
-        </plugin>
-    </plugins>
-</build>
+    <packaging>pom</packaging>
+
+    <name>iCampus Project Aggregator</name>
+    <description>聚合 iCampus 后端项目</description>
+
+    <modules>
+        <module>backend</module>
+    </modules>
 </project>

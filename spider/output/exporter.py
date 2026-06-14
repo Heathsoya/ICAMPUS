@@ -48,13 +48,12 @@ def export_to_csv(items: list[dict], filename: str = None) -> Path:
 def export_db_csv(items: list[dict], filename: str = None) -> Path:
     """导出为直接可被 knowledge_base 表导入的 CSV。
 
-    导出列顺：question,answer,category,keywords,source,post_id
+    导出列顺：question,answer,category,keywords,source
     - question: 截断到 500 字符
     - answer: 不能为空，长度不限
     - category: 可空，已映射到数据库预设分类
     - keywords: 以空格分隔的字符串（3-5 个关键词优先），可空
-    - source: 纯来源描述（例如“爬虫导入”），不要和 post_id 合并
-    - post_id: 原始公告 ID，用于追溯来源
+    - source: 纯来源描述（例如“爬虫导入”）
 
     会默认对相同 `question` 做去重（保留第一条）。
     """
@@ -79,9 +78,7 @@ def export_db_csv(items: list[dict], filename: str = None) -> Path:
         else:
             kws_str = str(kws)
 
-        # source 字段只包含纯来源描述，不要和 post_id 合并
         source = it.get("source") or settings.SOURCE_DEPARTMENT_DEFAULT
-        post_id = it.get("post_id") or ""
 
         rows.append({
             "question": q,
@@ -89,7 +86,6 @@ def export_db_csv(items: list[dict], filename: str = None) -> Path:
             "category": category,
             "keywords": kws_str,
             "source": source,
-            "post_id": post_id,
         })
 
     # 使用 pandas 去重（基于 question）并保持第一次出现
