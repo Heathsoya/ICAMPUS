@@ -6,6 +6,7 @@ from pathlib import Path
 
 import requests
 
+from alert import send_exception_alert
 from config import settings
 from .parser import extract_clean_content, extract_source_department
 from .state import ensure_state_db, is_post_crawled, mark_post_crawled
@@ -80,7 +81,9 @@ def fetch_posts_list(page_num=1, tag=6, page_size=15):
             logger.info("列表接口重试，等待 %.2f 秒后再试 (attempt %s/%s)", total_sleep, attempt + 1, retries)
             time.sleep(total_sleep)
 
-    logger.error("列表接口最终失败: %s (tag=%s, page=%s)", site.get("list_api_url"), tag, page_num)
+    message = f"列表接口最终失败: {site.get('list_api_url')} (tag={tag}, page={page_num})"
+    logger.error(message)
+    send_exception_alert("公告列表接口失败", RuntimeError(message), f"tag={tag}, page={page_num}")
     return [], 0
 
 
@@ -128,7 +131,9 @@ def fetch_detail(post_id):
             logger.info("详情页重试，等待 %.2f 秒后再试 (attempt %s/%s)", total_sleep, attempt + 1, retries)
             time.sleep(total_sleep)
 
-    logger.error("详情页最终失败: %s", url)
+    message = f"详情页最终失败: {url}"
+    logger.error(message)
+    send_exception_alert("公告详情页请求失败", RuntimeError(message), url)
     return None
 
 

@@ -4,6 +4,7 @@ import os
 
 import requests
 
+from alert import send_exception_alert
 from config import settings
 
 logger = logging.getLogger(__name__)
@@ -39,6 +40,7 @@ def _call_openai(prompt: str):
         return response["choices"][0]["message"]["content"]
     except Exception as exc:
         logger.exception("OpenAI 调用失败：%s", exc)
+        send_exception_alert("LLM 调用失败", exc, "OpenAI ChatCompletion 调用失败")
         raise
 
 
@@ -72,4 +74,5 @@ def _call_deepseekapi(prompt: str):
         return json.dumps(data, ensure_ascii=False)
     except Exception as exc:
         logger.exception("DeepseekAPI 调用失败：%s", exc)
+        send_exception_alert("LLM 调用失败", exc, "DeepseekAPI 调用失败")
         raise
