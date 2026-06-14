@@ -30,7 +30,7 @@ def main():
             process_main()
             return
 
-        print("开始完整流程：爬取 + 处理 + 导出")
+        logging.info("开始完整流程：爬取 + 处理 + 导出")
         crawl_main()
         process_main()
     except Exception as exc:

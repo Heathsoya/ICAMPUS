@@ -50,14 +50,14 @@ def main():
         if records:
             # 生成通用 CSV
             csv_path = export_to_csv(records)
-            print(f"已生成 CSV：{csv_path}")
+            logging.info("已生成 CSV：%s", csv_path)
             # 生成数据库导入兼容的 CSV（question,answer,category,keywords,source）
             db_csv_path = export_db_csv(records, filename="db_" + Path(csv_path).name)
-            print(f"已生成 DB 兼容 CSV：{db_csv_path}")
+            logging.info("已生成 DB 兼容 CSV：%s", db_csv_path)
         else:
-            print("未生成任何有效问答数据。")
+            logging.info("未生成任何有效问答数据。")
 
-        print(f"处理完成：已处理 {len(records)} 条，跳过 {skipped} 条。")
+        logging.info("处理完成：已处理 %s 条，跳过 %s 条。", len(records), skipped)
     except Exception as exc:
         logging.exception("处理失败: %s", exc)
         send_exception_alert("爬虫处理失败", exc, "process_only 模式执行失败")

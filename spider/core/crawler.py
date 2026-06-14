@@ -220,4 +220,4 @@ if __name__ == "__main__":
 
     setup_logging()
     items = crawl_all()
-    print(f"总共爬取 {len(items)} 条原始公告")
+    logging.info("总共爬取 %s 条原始公告", len(items))
