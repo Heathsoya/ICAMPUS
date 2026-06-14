@@ -8,7 +8,7 @@ spring:
     url: jdbc:mysql://localhost:3306/icampus?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${MYSQL_USERNAME:root}
-    password: Ltc20061106
+    password: ${MYSQL_PASSWORD:}
 
 mybatis-plus:
   configuration:

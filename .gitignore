@@ -29,3 +29,4 @@ application-local.yml
 # Temporary files
 *.tmp
 *.temp
+.codex-tmp/
