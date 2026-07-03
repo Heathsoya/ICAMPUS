@@ -66,6 +66,18 @@ def save_processed_item(raw_item, processed_records: list):
     return filepath
 
 
+def processed_item_exists(raw_item) -> bool:
+    post_id = raw_item.get("post_id") or raw_item.get("id")
+    if not post_id:
+        return False
+
+    processed_dir = Path(settings.PROCESSED_DATA_DIR)
+    if not processed_dir.exists():
+        return False
+
+    return any(processed_dir.glob(f"*_{post_id}_*_processed.json"))
+
+
 def load_raw_item(filepath):
     with open(filepath, "r", encoding="utf-8") as handle:
         return json.load(handle)

@@ -127,6 +127,14 @@ LLM_MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES", "2"))
 # 可配置的答案最大字符数（用于 prompt 要求与本地截断），可在 .env 中设置
 ANSWER_MAX_CHARS = int(os.getenv("ANSWER_MAX_CHARS", "200"))
 
+# 可选的 MySQL 自动导入。默认关闭，服务器任务显式开启。
+MYSQL_IMPORT_ENABLED = os.getenv("SPIDER_DB_IMPORT_ENABLED", "false").lower() == "true"
+MYSQL_HOST = os.getenv("MYSQL_HOST", "127.0.0.1")
+MYSQL_PORT = int(os.getenv("MYSQL_PORT", "3306"))
+MYSQL_DATABASE = os.getenv("MYSQL_DATABASE", "icampus")
+MYSQL_USERNAME = os.getenv("MYSQL_USERNAME", "root")
+MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "")
+
 # DeepseekAPI 配置
 DEEPSEEKAPI_URL = os.getenv("DEEPSEEKAPI_URL", "")
 DEEPSEEKAPI_KEY = os.getenv("DEEPSEEKAPI_KEY", "")

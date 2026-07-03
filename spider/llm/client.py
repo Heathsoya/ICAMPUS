@@ -1,18 +1,11 @@
 import json
 import logging
-import os
 
 import requests
 
 from config import settings
 
 logger = logging.getLogger(__name__)
-
-try:
-    import openai
-except ImportError:
-    openai = None
-
 
 def call_llm(prompt: str):
     provider = settings.LLM_PROVIDER.lower()
@@ -24,21 +17,33 @@ def call_llm(prompt: str):
 
 
 def _call_openai(prompt: str):
-    if not openai:
-        raise RuntimeError("openai 库未安装，请安装 openai 后再运行。")
     if not settings.LLM_API_KEY:
-        raise RuntimeError("未配置 LLM_API_KEY，无法调用 OpenAI。")
-    openai.api_key = settings.LLM_API_KEY
+        raise RuntimeError("未配置 LLM_API_KEY，无法调用大模型。")
+
+    url = settings.LLM_API_URL.rstrip("/")
+    if not url.endswith("/chat/completions"):
+        url += "/chat/completions"
+
+    payload = {
+        "model": settings.LLM_MODEL,
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.2,
+    }
     try:
-        response = openai.ChatCompletion.create(
-            model=settings.LLM_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.2,
+        response = requests.post(
+            url,
+            headers={
+                "Authorization": f"Bearer {settings.LLM_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
             timeout=settings.LLM_TIMEOUT_SECONDS,
         )
-        return response["choices"][0]["message"]["content"]
+        response.raise_for_status()
+        data = response.json()
+        return data["choices"][0]["message"]["content"]
     except Exception as exc:
-        logger.exception("OpenAI 调用失败：%s", exc)
+        logger.exception("OpenAI-compatible 大模型调用失败：%s", exc)
         raise
 
 

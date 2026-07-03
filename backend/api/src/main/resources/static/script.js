@@ -8,8 +8,16 @@ const panels = document.querySelectorAll(".panel");
 
 let lastQuestion = "";
 let lastAnswer = "";
+let lastQuestionLogId = null;
+let lastKnowledgeId = null;
 
 function switchPanel(targetId, activeTab) {
+  if (targetId === "contribution-panel" && !localStorage.getItem("token")) {
+    alert("请先登录后再提交贡献");
+    targetId = "login-panel";
+    activeTab = null;
+  }
+
   if (targetId === "audit-panel") {
     const role = localStorage.getItem("role");
     if (role !== "ADMIN") {
@@ -84,8 +92,6 @@ async function requestJson(path, options = {}) {
 document.getElementById("registerBtn").addEventListener("click", async () => {
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value;
-  const role = document.querySelector("input[name='role']:checked").value;
-
   if (username === "" || password === "") {
     alert("请输入账号和密码");
     return;
@@ -99,8 +105,7 @@ document.getElementById("registerBtn").addEventListener("click", async () => {
       },
       body: JSON.stringify({
         username: username,
-        password: password,
-        role: role
+        password: password
       })
     });
 
@@ -114,8 +119,6 @@ document.getElementById("registerBtn").addEventListener("click", async () => {
 document.getElementById("loginBtn").addEventListener("click", async () => {
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value;
-  const role = document.querySelector("input[name='role']:checked").value;
-
   if (username === "" || password === "") {
     alert("请输入账号和密码");
     return;
@@ -129,18 +132,19 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
       },
       body: JSON.stringify({
         username: username,
-        password: password,
-        role: role
+        password: password
       })
     });
 
+    const role = data.role || "USER";
     localStorage.setItem("token", data.token || "");
-    localStorage.setItem("username", username);
+    localStorage.setItem("username", data.username || username);
     localStorage.setItem("role", role);
 
     alert("登录成功，当前身份：" + (role === "ADMIN" ? "管理员" : "普通用户"));
     refreshUserInfo();
     updateMenuByRole();
+    switchPanel("home-panel");
   } catch (error) {
     alert(error.message);
   }
@@ -155,6 +159,7 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
   alert("已退出登录");
   refreshUserInfo();
   updateMenuByRole();
+  switchPanel("home-panel");
 });
 
 // 智能问答
@@ -169,6 +174,9 @@ document.getElementById("askBtn").addEventListener("click", async () => {
 
   answer.value = "正在请求后端接口，请稍等...";
   lastQuestion = question;
+  lastAnswer = "";
+  lastQuestionLogId = null;
+  lastKnowledgeId = null;
 
   try {
     const data = await requestJson("/api/qna/ask", {
@@ -182,6 +190,8 @@ document.getElementById("askBtn").addEventListener("click", async () => {
     });
 
     lastAnswer = data.answer || data.result || "暂无答案";
+    lastQuestionLogId = data.questionLogId || null;
+    lastKnowledgeId = data.matchedKnowledgeId || null;
     answer.value = lastAnswer;
   } catch (error) {
     answer.value = error.message;
@@ -197,11 +207,11 @@ document.querySelectorAll(".example-question").forEach((btn) => {
 
 // 反馈
 document.getElementById("goodBtn").addEventListener("click", () => {
-  sendFeedback("GOOD");
+  sendFeedback("USEFUL");
 });
 
 document.getElementById("badBtn").addEventListener("click", () => {
-  sendFeedback("BAD");
+  sendFeedback("USELESS");
 });
 
 async function sendFeedback(type) {
@@ -212,7 +222,7 @@ async function sendFeedback(type) {
     return;
   }
 
-  if (lastQuestion === "") {
+  if (!lastQuestionLogId) {
     alert("请先提问，再进行反馈");
     return;
   }
@@ -224,9 +234,10 @@ async function sendFeedback(type) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        question: lastQuestion,
-        answer: lastAnswer,
-        feedback: type
+        questionLogId: lastQuestionLogId,
+        knowledgeId: lastKnowledgeId,
+        feedbackType: type,
+        feedbackContent: ""
       })
     });
 
@@ -281,8 +292,6 @@ document.getElementById("submitConBtn").addEventListener("click", async () => {
 
   const question = document.getElementById("conQuestion").value.trim();
   const answer = document.getElementById("conAnswer").value.trim();
-  const category = document.getElementById("conCategory").value.trim();
-
   if (question === "" || answer === "") {
     alert("问题和答案不能为空");
     return;
@@ -296,8 +305,7 @@ document.getElementById("submitConBtn").addEventListener("click", async () => {
       },
       body: JSON.stringify({
         question: question,
-        answer: answer,
-        category: category
+        answer: answer
       })
     });
 
@@ -305,7 +313,6 @@ document.getElementById("submitConBtn").addEventListener("click", async () => {
 
     document.getElementById("conQuestion").value = "";
     document.getElementById("conAnswer").value = "";
-    document.getElementById("conCategory").value = "";
   } catch (error) {
     alert(error.message);
   }
@@ -348,11 +355,11 @@ function renderAuditList(list) {
       <tr>
         <td>${item.id}</td>
         <td>${item.question || item.title || ""}</td>
-        <td>${item.username || item.user || ""}</td>
+        <td>${item.submitter || ""}</td>
         <td>${item.status || "待审核"}</td>
         <td>
-          <button onclick="auditItem(${item.id}, 'PASS')">通过</button>
-          <button class="danger-btn" onclick="auditItem(${item.id}, 'REJECT')">驳回</button>
+          <button onclick="auditItem(${item.id}, 'approved')">通过</button>
+          <button class="danger-btn" onclick="auditItem(${item.id}, 'rejected')">驳回</button>
         </td>
       </tr>
     `;
@@ -376,7 +383,8 @@ async function auditItem(id, result) {
       },
       body: JSON.stringify({
         id: id,
-        result: result
+        status: result,
+        reason: result === "approved" ? "内容审核通过" : "内容审核驳回"
       })
     });
 

@@ -2,10 +2,10 @@ requests
 beautifulsoup4
 lxml
 pandas
-openai
 python-dateutil
 PyYAML
 pydantic
 apscheduler
 python-dotenv
 tenacity
+PyMySQL
