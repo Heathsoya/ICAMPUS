@@ -35,14 +35,18 @@ CRAWL_SITES = [
     },
 ]
 
+# Limit historical backfill so one run cannot flood the knowledge base.
+CRAWL_PAGES_PER_CATEGORY = max(1, int(os.getenv("CRAWL_PAGES_PER_CATEGORY", "3")))
+CRAWL_MAX_NEW_PER_CATEGORY = max(1, int(os.getenv("CRAWL_MAX_NEW_PER_CATEGORY", "5")))
+
 # 默认爬取目标：tag编号、分类名称、页数、每页条数
 CRAWL_TARGETS = [
-    (1, "选课", 1, 15),
-    (2, "考试", 1, 15),
-    (3, "实践", 1, 15),
-    (4, "交流", 1, 15),
-    (5, "教师", 1, 15),
-    (6, "信息", 1, 15),
+    (1, "选课", CRAWL_PAGES_PER_CATEGORY, 15),
+    (2, "考试", CRAWL_PAGES_PER_CATEGORY, 15),
+    (3, "实践", CRAWL_PAGES_PER_CATEGORY, 15),
+    (4, "交流", CRAWL_PAGES_PER_CATEGORY, 15),
+    (5, "教师", CRAWL_PAGES_PER_CATEGORY, 15),
+    (6, "信息", CRAWL_PAGES_PER_CATEGORY, 15),
 ]
 
 # HTTP 请求配置
@@ -124,6 +128,8 @@ LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4o-mini")
 LLM_TIMEOUT_SECONDS = int(os.getenv("LLM_TIMEOUT_SECONDS", "30"))
 LLM_BATCH_SIZE = int(os.getenv("LLM_BATCH_SIZE", "5"))
 LLM_MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES", "2"))
+LLM_MAX_QA_PER_ANNOUNCEMENT = max(1, int(os.getenv("LLM_MAX_QA_PER_ANNOUNCEMENT", "3")))
+CRAWL_MAX_QA_PER_RUN = max(1, int(os.getenv("CRAWL_MAX_QA_PER_RUN", "30")))
 # 可配置的答案最大字符数（用于 prompt 要求与本地截断），可在 .env 中设置
 ANSWER_MAX_CHARS = int(os.getenv("ANSWER_MAX_CHARS", "200"))
 

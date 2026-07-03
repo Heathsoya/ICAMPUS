@@ -132,7 +132,7 @@ def fetch_detail(post_id):
     return None
 
 
-def crawl_category(tag, tag_name, page_num=1, page_size=15):
+def crawl_category(tag, tag_name, page_num=1, page_size=15, limit=None):
     logger.info("爬取分类: %s (tag=%s, page=%s, size=%s)", tag_name, tag, page_num, page_size)
 
     posts, total = fetch_posts_list(page_num=page_num, tag=tag, page_size=page_size)
@@ -141,6 +141,9 @@ def crawl_category(tag, tag_name, page_num=1, page_size=15):
 
     records = []
     for index, post in enumerate(posts, start=1):
+        if limit is not None and len(records) >= limit:
+            break
+
         post_id = post.get("id")
         if not post_id:
             continue
@@ -202,11 +205,27 @@ def crawl_all(limit=None):
 
     all_results = []
     for tag, name, pages, page_size in settings.CRAWL_TARGETS:
+        category_count = 0
         for page in range(1, pages + 1):
-            results = crawl_category(tag, name, page_num=page, page_size=page_size)
+            category_remaining = settings.CRAWL_MAX_NEW_PER_CATEGORY - category_count
+            if category_remaining <= 0:
+                break
+
+            if limit is not None:
+                global_remaining = limit - len(all_results)
+                if global_remaining <= 0:
+                    return all_results
+                category_remaining = min(category_remaining, global_remaining)
+
+            results = crawl_category(
+                tag,
+                name,
+                page_num=page,
+                page_size=page_size,
+                limit=category_remaining,
+            )
             all_results.extend(results)
-            if limit and len(all_results) >= limit:
-                return all_results[:limit]
+            category_count += len(results)
     return all_results
 
 

@@ -28,6 +28,11 @@ def main():
     skipped = 0
 
     for raw_item in load_raw_items():
+        remaining = settings.CRAWL_MAX_QA_PER_RUN - len(records)
+        if remaining < settings.LLM_MAX_QA_PER_ANNOUNCEMENT:
+            logging.info("本轮问答数量已达到上限 %s，剩余公告留待下次处理。", settings.CRAWL_MAX_QA_PER_RUN)
+            break
+
         if processed_item_exists(raw_item):
             logging.info("跳过已处理公告: %s", raw_item.get("url"))
             skipped += 1

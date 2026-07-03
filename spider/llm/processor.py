@@ -118,7 +118,7 @@ def process_raw_item(raw_item: dict) -> list[dict]:
     if not parsed:
         raise ValueError("LLM 返回无法解析为 JSON")
 
-    qa_pairs = _normalize_qa_pairs(parsed)
+    qa_pairs = _normalize_qa_pairs(parsed)[:settings.LLM_MAX_QA_PER_ANNOUNCEMENT]
     if not qa_pairs:
         if isinstance(parsed, dict) and parsed.get("skip_flag"):
             return []
