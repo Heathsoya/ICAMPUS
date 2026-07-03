@@ -29,7 +29,7 @@ llm:
 
 # JWT 配置
 jwt:
-  secret: icampus-jwt-secret-key-2024-min-length-32
+  secret: ${JWT_SECRET:icampus-jwt-secret-key-2024-min-length-32}
   expiration-ms: 86400000  # 24小时
 
 # 日志
