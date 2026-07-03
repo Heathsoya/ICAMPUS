@@ -10,6 +10,7 @@ let lastQuestion = "";
 let lastAnswer = "";
 let lastQuestionLogId = null;
 let lastKnowledgeId = null;
+let crawlerPollTimer = null;
 
 function switchPanel(targetId, activeTab) {
   if (targetId === "contribution-panel" && !localStorage.getItem("token")) {
@@ -334,10 +335,15 @@ document.querySelectorAll(".admin-menu").forEach((button) => {
     if (view === "overview") loadAdminOverview();
     if (view === "audit") loadAuditList();
     if (view === "knowledge") loadKnowledgeList();
+    if (view === "crawler") loadCrawlerStatus();
   });
 });
 
 function showAdminView(view) {
+  if (view !== "crawler" && crawlerPollTimer) {
+    clearTimeout(crawlerPollTimer);
+    crawlerPollTimer = null;
+  }
   document.querySelectorAll(".admin-menu").forEach((button) => {
     button.classList.toggle("active", button.dataset.adminView === view);
   });
@@ -355,8 +361,10 @@ async function loadAdminOverview() {
       requestJson("/api/admin/knowledge?limit=100")
     ]);
     const auditList = Array.isArray(auditData) ? auditData : auditData.list || [];
-    renderAuditList(auditList);
-    renderKnowledgeList(knowledgeData);
+    const pendingItems = auditList.filter((item) => item.status === "pending");
+    document.getElementById("pendingCount").textContent = pendingItems.length;
+    document.getElementById("knowledgeCount").textContent = knowledgeData.total ?? 0;
+    document.getElementById("crawlerCount").textContent = knowledgeData.crawlerCount ?? 0;
   } catch (error) {
     alert(error.message);
   }
@@ -386,7 +394,7 @@ function renderAuditList(list) {
   if (pendingCount) pendingCount.textContent = pendingItems.length;
 
   if (list.length === 0) {
-    auditBody.innerHTML = "<tr><td colspan='5'>暂无待审核内容</td></tr>";
+    auditBody.innerHTML = "<tr><td colspan='6'>暂无待审核内容</td></tr>";
     return;
   }
 
@@ -396,6 +404,7 @@ function renderAuditList(list) {
       <tr>
         <td>${escapeHtml(item.id)}</td>
         <td>${escapeHtml(item.question || item.title)}</td>
+        <td class="audit-answer">${escapeHtml(item.answer || "-")}</td>
         <td>${escapeHtml(item.submitter || "匿名用户")}</td>
         <td>${escapeHtml(formatAuditStatus(item.status))}</td>
         <td>
@@ -491,9 +500,88 @@ async function auditItem(id, result) {
 
     alert("审核操作成功");
     loadAuditList();
+    loadKnowledgeList();
   } catch (error) {
     alert(error.message);
   }
+}
+
+// 爬虫任务管理
+document.getElementById("refreshCrawlerBtn").addEventListener("click", () => loadCrawlerStatus());
+document.getElementById("saveCrawlerScheduleBtn").addEventListener("click", saveCrawlerSchedule);
+document.getElementById("runCrawlerBtn").addEventListener("click", runCrawlerNow);
+
+async function loadCrawlerStatus(silent = false) {
+  if (localStorage.getItem("role") !== "ADMIN") return;
+  try {
+    const data = await requestJson("/api/admin/crawler");
+    renderCrawlerStatus(data);
+  } catch (error) {
+    if (!silent) alert(error.message);
+  }
+}
+
+async function saveCrawlerSchedule() {
+  const enabled = document.getElementById("crawlerEnabled").checked;
+  const intervalHours = Number(document.getElementById("crawlerInterval").value);
+  if (!Number.isInteger(intervalHours) || intervalHours < 1 || intervalHours > 168) {
+    alert("执行周期必须是1到168之间的整数");
+    return;
+  }
+
+  try {
+    const data = await requestJson("/api/admin/crawler/schedule", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ enabled, intervalHours })
+    });
+    renderCrawlerStatus(data);
+    alert(data.message || "爬虫周期已保存");
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function runCrawlerNow() {
+  const button = document.getElementById("runCrawlerBtn");
+  button.disabled = true;
+  try {
+    const data = await requestJson("/api/admin/crawler/run", { method: "POST" });
+    renderCrawlerStatus(data);
+    alert(data.message || "爬虫任务已提交");
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    if (!button.dataset.running) button.disabled = false;
+  }
+}
+
+function renderCrawlerStatus(data) {
+  const status = data || {};
+  document.getElementById("crawlerAvailableState").textContent = status.available ? "可用" : "不可用";
+  document.getElementById("crawlerRunningState").textContent = status.running ? "运行中" : "空闲";
+  document.getElementById("crawlerIntervalState").textContent = `${status.intervalHours || 24} 小时`;
+  document.getElementById("crawlerEnabled").checked = Boolean(status.enabled);
+  document.getElementById("crawlerInterval").value = status.intervalHours || 24;
+  document.getElementById("crawlerNextRun").textContent = formatCrawlerTime(status.nextRunAt);
+  document.getElementById("crawlerLastStarted").textContent = formatCrawlerTime(status.lastStartedAt);
+  document.getElementById("crawlerLastFinished").textContent = formatCrawlerTime(status.lastFinishedAt);
+  document.getElementById("crawlerLastResult").textContent = status.lastExitCode == null
+    ? "暂无记录"
+    : status.lastExitCode === 0 ? "执行成功" : `执行失败（${status.lastExitCode}）`;
+
+  const runButton = document.getElementById("runCrawlerBtn");
+  runButton.disabled = !status.available || status.running;
+  runButton.dataset.running = status.running ? "true" : "";
+
+  if (crawlerPollTimer) clearTimeout(crawlerPollTimer);
+  crawlerPollTimer = status.running
+    ? setTimeout(() => loadCrawlerStatus(true), 5000)
+    : null;
+}
+
+function formatCrawlerTime(value) {
+  return value ? value.replace("T", " ").slice(0, 19) : "--";
 }
 
 // 个人中心信息

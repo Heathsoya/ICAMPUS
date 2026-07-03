@@ -1,13 +1,17 @@
 package com.icampus.api.controller;
 
 import com.icampus.app.dto.request.AuditRequest;
+import com.icampus.app.dto.request.CrawlerScheduleRequest;
 import com.icampus.app.dto.response.AuditItemVO;
+import com.icampus.app.dto.response.CrawlerStatusVO;
 import com.icampus.app.dto.response.KnowledgeSummaryVO;
 import com.icampus.app.service.AdminService;
+import com.icampus.app.service.CrawlerAdminService;
 import com.icampus.core.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,9 +29,12 @@ import java.util.List;
 public class AdminController {
 
     private final AdminService adminService;
+    private final CrawlerAdminService crawlerAdminService;
 
-    public AdminController(AdminService adminService) {
+    public AdminController(AdminService adminService,
+                           CrawlerAdminService crawlerAdminService) {
         this.adminService = adminService;
+        this.crawlerAdminService = crawlerAdminService;
     }
 
     /**
@@ -51,6 +58,22 @@ public class AdminController {
     public ApiResponse<KnowledgeSummaryVO> knowledgeList(
             @RequestParam(name = "limit", defaultValue = "100") int limit) {
         return ApiResponse.success(adminService.getKnowledgeSummary(limit));
+    }
+
+    @GetMapping("/crawler")
+    public ApiResponse<CrawlerStatusVO> crawlerStatus() {
+        return ApiResponse.success(crawlerAdminService.getStatus());
+    }
+
+    @PostMapping("/crawler/run")
+    public ApiResponse<CrawlerStatusVO> runCrawler() {
+        return ApiResponse.success(crawlerAdminService.trigger());
+    }
+
+    @PutMapping("/crawler/schedule")
+    public ApiResponse<CrawlerStatusVO> configureCrawler(
+            @Valid @RequestBody CrawlerScheduleRequest request) {
+        return ApiResponse.success(crawlerAdminService.configure(request));
     }
 
     /**

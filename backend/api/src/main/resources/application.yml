@@ -32,6 +32,13 @@ jwt:
   secret: ${JWT_SECRET:icampus-jwt-secret-key-2024-min-length-32}
   expiration-ms: 86400000  # 24小时
 
+crawler:
+  script-path: ${CRAWLER_SCRIPT_PATH:/opt/icampus/spider/run_server.sh}
+  state-path: ${CRAWLER_STATE_PATH:/opt/icampus/spider/data/crawler-admin.properties}
+  log-path: ${CRAWLER_LOG_PATH:/opt/icampus/spider/logs/admin-crawler.log}
+  default-enabled: ${CRAWLER_DEFAULT_ENABLED:true}
+  default-interval-hours: ${CRAWLER_DEFAULT_INTERVAL_HOURS:24}
+
 # 日志
 logging:
   level:

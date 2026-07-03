@@ -148,6 +148,7 @@
             <button class="admin-menu active" data-admin-view="overview">数据概览</button>
             <button class="admin-menu" data-admin-view="audit">内容审核</button>
             <button class="admin-menu" data-admin-view="knowledge">知识库状态</button>
+            <button class="admin-menu" data-admin-view="crawler">爬虫任务</button>
           </aside>
 
           <div class="admin-main">
@@ -190,6 +191,7 @@
                     <tr>
                       <th>ID</th>
                       <th>问题</th>
+                      <th>答案</th>
                       <th>提交用户</th>
                       <th>状态</th>
                       <th>操作</th>
@@ -225,6 +227,50 @@
                   <tbody id="knowledgeBody"></tbody>
                 </table>
               </div>
+            </div>
+
+            <div id="admin-crawler-view" class="admin-view">
+              <div class="section-head row-head">
+                <div>
+                  <p class="eyebrow">CRAWLER JOB</p>
+                  <h2>爬虫任务</h2>
+                  <p>管理校园公告抓取、问答生成和知识库导入周期。</p>
+                </div>
+                <button id="refreshCrawlerBtn" class="light-btn">刷新状态</button>
+              </div>
+
+              <div class="stat-grid crawler-stat-grid">
+                <div class="stat-card">
+                  <span id="crawlerAvailableState">--</span>
+                  <p>脚本状态</p>
+                </div>
+                <div class="stat-card">
+                  <span id="crawlerRunningState">--</span>
+                  <p>运行状态</p>
+                </div>
+                <div class="stat-card">
+                  <span id="crawlerIntervalState">--</span>
+                  <p>执行周期</p>
+                </div>
+              </div>
+
+              <div class="crawler-controls">
+                <label class="crawler-toggle">
+                  <input id="crawlerEnabled" type="checkbox">
+                  <span>启用定时爬取</span>
+                </label>
+                <label for="crawlerInterval">执行周期（小时）</label>
+                <input id="crawlerInterval" type="number" min="1" max="168" value="24">
+                <button id="saveCrawlerScheduleBtn">保存周期</button>
+                <button id="runCrawlerBtn" class="light-btn">立即执行</button>
+              </div>
+
+              <dl class="crawler-details">
+                <div><dt>下次执行</dt><dd id="crawlerNextRun">--</dd></div>
+                <div><dt>上次开始</dt><dd id="crawlerLastStarted">--</dd></div>
+                <div><dt>上次结束</dt><dd id="crawlerLastFinished">--</dd></div>
+                <div><dt>上次结果</dt><dd id="crawlerLastResult">--</dd></div>
+              </dl>
             </div>
           </div>
         </div>

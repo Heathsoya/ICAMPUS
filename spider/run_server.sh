@@ -3,6 +3,13 @@ set -euo pipefail
 
 : "${QWEN_API_KEY:?QWEN_API_KEY is required}"
 
+mkdir -p data logs
+exec 9>data/crawler.lock
+if ! flock -n 9; then
+  echo "Crawler is already running."
+  exit 75
+fi
+
 export LLM_PROVIDER=openai
 export LLM_API_KEY="${QWEN_API_KEY}"
 export LLM_API_URL="https://dashscope.aliyuncs.com/compatible-mode/v1"

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
 import java.util.List;
+import java.time.LocalDateTime;
 
 @Repository
 public class MysqlKnowledgeBaseRepository implements KnowledgeBaseRepository {
@@ -19,6 +20,23 @@ public class MysqlKnowledgeBaseRepository implements KnowledgeBaseRepository {
 
     public MysqlKnowledgeBaseRepository(KnowledgeBaseMapper knowledgeBaseMapper) {
         this.knowledgeBaseMapper = knowledgeBaseMapper;
+    }
+
+    @Override
+    public KnowledgeBase save(KnowledgeBase knowledgeBase) {
+        KnowledgeBaseDO data = toData(knowledgeBase);
+        LocalDateTime now = LocalDateTime.now();
+        if (data.getCreatedAt() == null) {
+            data.setCreatedAt(now);
+        }
+        if (data.getUpdatedAt() == null) {
+            data.setUpdatedAt(now);
+        }
+        knowledgeBaseMapper.upsert(data);
+        knowledgeBase.setId(data.getId());
+        knowledgeBase.setCreatedAt(data.getCreatedAt());
+        knowledgeBase.setUpdatedAt(data.getUpdatedAt());
+        return knowledgeBase;
     }
 
     @Override
@@ -67,6 +85,19 @@ public class MysqlKnowledgeBaseRepository implements KnowledgeBaseRepository {
 
     private List<KnowledgeBase> toDomainList(List<KnowledgeBaseDO> dataList) {
         return dataList.stream().map(this::toDomain).toList();
+    }
+
+    private KnowledgeBaseDO toData(KnowledgeBase item) {
+        KnowledgeBaseDO data = new KnowledgeBaseDO();
+        data.setId(item.getId());
+        data.setQuestion(item.getQuestion());
+        data.setAnswer(item.getAnswer());
+        data.setCategory(item.getCategory());
+        data.setKeywords(item.getKeywords());
+        data.setSource(item.getSource());
+        data.setCreatedAt(item.getCreatedAt());
+        data.setUpdatedAt(item.getUpdatedAt());
+        return data;
     }
 
     private KnowledgeBase toDomain(KnowledgeBaseDO data) {

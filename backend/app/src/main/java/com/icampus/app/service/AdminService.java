@@ -14,7 +14,9 @@ import com.icampus.domain.repository.KnowledgeBaseRepository;
 import com.icampus.domain.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Comparator;
 import java.util.stream.Collectors;
@@ -51,6 +53,7 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void audit(AuditRequest request) {
         Contribution contribution = contributionRepository.findById(request.getId());
         if (contribution == null) {
@@ -59,6 +62,17 @@ public class AdminService {
 
         try {
             AuditStatusEnum status = AuditStatusEnum.valueOf(request.getStatus().toUpperCase());
+            if (status == AuditStatusEnum.APPROVED) {
+                KnowledgeBase knowledge = new KnowledgeBase();
+                knowledge.setQuestion(contribution.getQuestion());
+                knowledge.setAnswer(contribution.getAnswer());
+                knowledge.setCategory("综合咨询");
+                knowledge.setKeywords(contribution.getQuestion());
+                knowledge.setSource("用户贡献");
+                knowledge.setCreatedAt(LocalDateTime.now());
+                knowledge.setUpdatedAt(LocalDateTime.now());
+                knowledgeBaseRepository.save(knowledge);
+            }
             contributionRepository.updateStatus(request.getId(), status.getCode(), request.getReason());
         } catch (IllegalArgumentException e) {
             throw new BizException(BizCode.INVALID_AUDIT_STATUS);

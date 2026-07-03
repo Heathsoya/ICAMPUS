@@ -6,6 +6,7 @@ import com.icampus.app.qa.support.QuestionValidator;
 import com.icampus.app.service.AdminService;
 import com.icampus.app.service.AuthService;
 import com.icampus.app.service.ContributionService;
+import com.icampus.app.service.CrawlerAdminService;
 import com.icampus.domain.repository.AnswerFeedbackRepository;
 import com.icampus.domain.repository.ContributionRepository;
 import com.icampus.domain.repository.KnowledgeBaseRepository;
@@ -13,6 +14,7 @@ import com.icampus.domain.repository.QuestionLogRepository;
 import com.icampus.domain.repository.UserRepository;
 import com.icampus.domain.spi.LlmClient;
 import com.icampus.domain.spi.TokenProvider;
+import com.icampus.domain.spi.CrawlerManager;
 import com.icampus.infra.llm.DeepSeekLlmClient;
 import com.icampus.infra.llm.MockLlmClient;
 import com.icampus.api.security.JwtAuthenticationFilter;
@@ -91,5 +93,10 @@ public class BeanConfig {
     @Bean
     public ContributionService contributionService(ContributionRepository contributionRepository) {
         return new ContributionService(contributionRepository);
+    }
+
+    @Bean
+    public CrawlerAdminService crawlerAdminService(CrawlerManager crawlerManager) {
+        return new CrawlerAdminService(crawlerManager);
     }
 }
