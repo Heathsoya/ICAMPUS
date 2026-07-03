@@ -145,49 +145,86 @@
           <aside class="admin-sidebar">
             <h2>管理后台</h2>
             <p>管理员独立工作台</p>
-            <button class="admin-menu active">数据概览</button>
-            <button class="admin-menu">内容审核</button>
-            <button class="admin-menu">知识库状态</button>
+            <button class="admin-menu active" data-admin-view="overview">数据概览</button>
+            <button class="admin-menu" data-admin-view="audit">内容审核</button>
+            <button class="admin-menu" data-admin-view="knowledge">知识库状态</button>
           </aside>
 
           <div class="admin-main">
-            <div class="section-head row-head">
-              <div>
+            <div id="admin-overview-view" class="admin-view active">
+              <div class="section-head">
                 <p class="eyebrow">ADMIN DASHBOARD</p>
                 <h2>后台数据总览</h2>
-                <p>管理员不再只是“能审核的普通用户”，这里单独展示后台数据、待审核内容和知识库状态。</p>
+                <p>当前内容审核和知识库运行状态。</p>
               </div>
-              <button id="loadAuditBtn">加载审核列表</button>
+
+              <div class="stat-grid">
+                <div class="stat-card">
+                  <span id="pendingCount">--</span>
+                  <p>待审核内容</p>
+                </div>
+                <div class="stat-card">
+                  <span id="knowledgeCount">--</span>
+                  <p>知识库条目</p>
+                </div>
+                <div class="stat-card">
+                  <span id="crawlerCount">--</span>
+                  <p>爬虫导入</p>
+                </div>
+              </div>
             </div>
 
-            <div class="stat-grid">
-              <div class="stat-card">
-                <span id="pendingCount">--</span>
-                <p>待审核内容</p>
+            <div id="admin-audit-view" class="admin-view">
+              <div class="section-head row-head">
+                <div>
+                  <p class="eyebrow">CONTENT REVIEW</p>
+                  <h2>内容审核</h2>
+                  <p>审核用户提交的问题和答案。</p>
+                </div>
+                <button id="loadAuditBtn">刷新审核列表</button>
               </div>
-              <div class="stat-card">
-                <span id="knowledgeCount">--</span>
-                <p>知识库条目</p>
-              </div>
-              <div class="stat-card">
-                <span id="hotCount">--</span>
-                <p>热点问题</p>
+
+              <div class="table-card">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>问题</th>
+                      <th>提交用户</th>
+                      <th>状态</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="auditBody"></tbody>
+                </table>
               </div>
             </div>
 
-            <div class="table-card">
-              <table>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>问题</th>
-                    <th>提交用户</th>
-                    <th>状态</th>
-                    <th>操作</th>
-                  </tr>
-                </thead>
-                <tbody id="auditBody"></tbody>
-              </table>
+            <div id="admin-knowledge-view" class="admin-view">
+              <div class="section-head row-head">
+                <div>
+                  <p class="eyebrow">KNOWLEDGE BASE</p>
+                  <h2>知识库状态</h2>
+                  <p>查看人工维护和爬虫导入的知识条目。</p>
+                </div>
+                <button id="loadKnowledgeBtn">刷新知识库</button>
+              </div>
+
+              <div class="table-card">
+                <table class="knowledge-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>问题</th>
+                      <th>分类</th>
+                      <th>关键词</th>
+                      <th>来源</th>
+                      <th>更新时间</th>
+                    </tr>
+                  </thead>
+                  <tbody id="knowledgeBody"></tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>

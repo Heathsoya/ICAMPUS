@@ -2,6 +2,7 @@ package com.icampus.api.controller;
 
 import com.icampus.app.dto.request.AuditRequest;
 import com.icampus.app.dto.response.AuditItemVO;
+import com.icampus.app.dto.response.KnowledgeSummaryVO;
 import com.icampus.app.service.AdminService;
 import com.icampus.core.ApiResponse;
 import jakarta.validation.Valid;
@@ -41,6 +42,15 @@ public class AdminController {
             @RequestParam(name = "status", required = false) String status) {
         List<AuditItemVO> list = adminService.getAuditList(status);
         return ApiResponse.success(list);
+    }
+
+    /**
+     * 获取知识库统计和最近条目。
+     */
+    @GetMapping("/knowledge")
+    public ApiResponse<KnowledgeSummaryVO> knowledgeList(
+            @RequestParam(name = "limit", defaultValue = "100") int limit) {
+        return ApiResponse.success(adminService.getKnowledgeSummary(limit));
     }
 
     /**

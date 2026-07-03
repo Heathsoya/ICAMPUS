@@ -38,6 +38,11 @@ function switchPanel(targetId, activeTab) {
 
   document.getElementById(targetId).classList.add("active");
   refreshUserInfo();
+
+  if (targetId === "audit-panel") {
+    showAdminView("overview");
+    loadAdminOverview();
+  }
 }
 
 // 页面切换
@@ -318,8 +323,44 @@ document.getElementById("submitConBtn").addEventListener("click", async () => {
   }
 });
 
-// 后台审核列表
+// 管理后台
 document.getElementById("loadAuditBtn").addEventListener("click", loadAuditList);
+document.getElementById("loadKnowledgeBtn").addEventListener("click", loadKnowledgeList);
+
+document.querySelectorAll(".admin-menu").forEach((button) => {
+  button.addEventListener("click", () => {
+    const view = button.dataset.adminView;
+    showAdminView(view);
+    if (view === "overview") loadAdminOverview();
+    if (view === "audit") loadAuditList();
+    if (view === "knowledge") loadKnowledgeList();
+  });
+});
+
+function showAdminView(view) {
+  document.querySelectorAll(".admin-menu").forEach((button) => {
+    button.classList.toggle("active", button.dataset.adminView === view);
+  });
+  document.querySelectorAll(".admin-view").forEach((panel) => panel.classList.remove("active"));
+  const target = document.getElementById(`admin-${view}-view`);
+  if (target) target.classList.add("active");
+}
+
+async function loadAdminOverview() {
+  if (localStorage.getItem("role") !== "ADMIN") return;
+
+  try {
+    const [auditData, knowledgeData] = await Promise.all([
+      requestJson("/api/admin/audit"),
+      requestJson("/api/admin/knowledge?limit=100")
+    ]);
+    const auditList = Array.isArray(auditData) ? auditData : auditData.list || [];
+    renderAuditList(auditList);
+    renderKnowledgeList(knowledgeData);
+  } catch (error) {
+    alert(error.message);
+  }
+}
 
 async function loadAuditList() {
   const role = localStorage.getItem("role");
@@ -341,9 +382,8 @@ async function loadAuditList() {
 function renderAuditList(list) {
   const auditBody = document.getElementById("auditBody");
   const pendingCount = document.getElementById("pendingCount");
-  const knowledgeCount = document.getElementById("knowledgeCount");
-  if (pendingCount) pendingCount.textContent = list.length;
-  if (knowledgeCount) knowledgeCount.textContent = "待接入";
+  const pendingItems = list.filter((item) => item.status === "pending");
+  if (pendingCount) pendingCount.textContent = pendingItems.length;
 
   if (list.length === 0) {
     auditBody.innerHTML = "<tr><td colspan='5'>暂无待审核内容</td></tr>";
@@ -351,19 +391,80 @@ function renderAuditList(list) {
   }
 
   auditBody.innerHTML = list.map((item) => {
+    const isPending = item.status === "pending";
     return `
       <tr>
-        <td>${item.id}</td>
-        <td>${item.question || item.title || ""}</td>
-        <td>${item.submitter || ""}</td>
-        <td>${item.status || "待审核"}</td>
+        <td>${escapeHtml(item.id)}</td>
+        <td>${escapeHtml(item.question || item.title)}</td>
+        <td>${escapeHtml(item.submitter || "匿名用户")}</td>
+        <td>${escapeHtml(formatAuditStatus(item.status))}</td>
         <td>
-          <button onclick="auditItem(${item.id}, 'approved')">通过</button>
-          <button class="danger-btn" onclick="auditItem(${item.id}, 'rejected')">驳回</button>
+          ${isPending ? `
+            <button onclick="auditItem(${Number(item.id)}, 'approved')">通过</button>
+            <button class="danger-btn" onclick="auditItem(${Number(item.id)}, 'rejected')">驳回</button>
+          ` : "已处理"}
         </td>
       </tr>
     `;
   }).join("");
+}
+
+async function loadKnowledgeList() {
+  if (localStorage.getItem("role") !== "ADMIN") {
+    alert("只有管理员可以查看知识库");
+    return;
+  }
+
+  try {
+    const data = await requestJson("/api/admin/knowledge?limit=100");
+    renderKnowledgeList(data);
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+function renderKnowledgeList(data) {
+  const summary = data || {};
+  const list = Array.isArray(summary.items) ? summary.items : [];
+  document.getElementById("knowledgeCount").textContent = summary.total ?? list.length;
+  document.getElementById("crawlerCount").textContent = summary.crawlerCount ?? 0;
+
+  const knowledgeBody = document.getElementById("knowledgeBody");
+  if (list.length === 0) {
+    knowledgeBody.innerHTML = "<tr><td colspan='6'>暂无知识库内容</td></tr>";
+    return;
+  }
+
+  knowledgeBody.innerHTML = list.map((item) => {
+    const isCrawler = (item.source || "").includes("爬虫");
+    const updatedAt = (item.updatedAt || "").replace("T", " ").slice(0, 19);
+    return `
+      <tr>
+        <td>${escapeHtml(item.id)}</td>
+        <td>${escapeHtml(item.question)}</td>
+        <td>${escapeHtml(item.category || "未分类")}</td>
+        <td>${escapeHtml(item.keywords || "-")}</td>
+        <td><span class="source-badge ${isCrawler ? "crawler" : ""}">${escapeHtml(item.source || "人工维护")}</span></td>
+        <td>${escapeHtml(updatedAt || "-")}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function formatAuditStatus(status) {
+  if (status === "approved") return "已通过";
+  if (status === "rejected") return "已驳回";
+  return "待审核";
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#39;"
+  })[character]);
 }
 
 // 执行审核

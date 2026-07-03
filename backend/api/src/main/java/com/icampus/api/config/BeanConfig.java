@@ -83,8 +83,9 @@ public class BeanConfig {
 
     @Bean
     public AdminService adminService(ContributionRepository contributionRepository,
-                                      UserRepository userRepository) {
-        return new AdminService(contributionRepository, userRepository);
+                                      UserRepository userRepository,
+                                      KnowledgeBaseRepository knowledgeBaseRepository) {
+        return new AdminService(contributionRepository, userRepository, knowledgeBaseRepository);
     }
 
     @Bean
