@@ -20,7 +20,7 @@
 
       <nav class="tabs" aria-label="主导航">
         <button class="tab active" data-target="home-panel">首页</button>
-        <button class="tab" data-target="login-panel">登录/注册</button>
+        <button class="tab login-tab" data-target="login-panel">登录/注册</button>
         <button class="tab" data-target="hot-panel">热点榜</button>
         <button class="tab user-tab" data-target="contribution-panel">用户贡献</button>
         <button class="tab admin-tab" data-target="audit-panel">管理后台</button>
@@ -37,7 +37,7 @@
             <h1>让校园信息，像搜索一样简单。</h1>
             <p class="hero-text">面向学生的校园生活服务入口，整合常见问答、热点问题、用户贡献与管理员审核，后续可继续接入知识库、爬虫数据和更多校园服务模块。</p>
             <div class="hero-actions">
-              <button class="primary-action tab-link" data-target="login-panel">立即登录</button>
+              <button class="primary-action tab-link guest-only" data-target="login-panel">立即登录</button>
               <button class="secondary-action tab-link" data-target="contribution-panel">提交问题</button>
             </div>
           </div>
@@ -49,7 +49,7 @@
               <button id="askBtn">发送</button>
             </div>
             <div class="example-box">
-              <span>常用问题</span>
+              <span id="relatedTitle">常用问题</span>
               <button class="example-question">图书馆开放时间</button>
               <button class="example-question">校园卡丢了怎么办</button>
               <button class="example-question">宿舍报修流程</button>
@@ -86,7 +86,6 @@
           <div class="button-row">
             <button id="loginBtn">登录</button>
             <button id="registerBtn" class="light-btn">注册账号</button>
-            <button id="logoutBtn" class="gray-btn">退出登录</button>
           </div>
         </div>
       </section>
@@ -216,16 +215,27 @@
                 <table class="knowledge-table">
                   <thead>
                     <tr>
+                      <th class="checkbox-cell"><input id="selectAllKnowledge" type="checkbox" aria-label="全选知识库记录"></th>
                       <th>ID</th>
                       <th>问题</th>
                       <th>分类</th>
                       <th>关键词</th>
                       <th>来源</th>
                       <th>更新时间</th>
+                      <th>操作</th>
                     </tr>
                   </thead>
                   <tbody id="knowledgeBody"></tbody>
                 </table>
+              </div>
+
+              <div class="knowledge-footer">
+                <button id="deleteSelectedKnowledgeBtn" class="danger-btn">批量删除</button>
+                <div class="pagination">
+                  <button id="prevKnowledgePageBtn" class="light-btn">上一页</button>
+                  <span id="knowledgePageInfo">第 1 页 / 共 1 页</span>
+                  <button id="nextKnowledgePageBtn" class="light-btn">下一页</button>
+                </div>
               </div>
             </div>
 
@@ -287,6 +297,7 @@
           <p>当前账号：<span id="currentUser">未登录</span></p>
           <p>当前身份：<span id="currentRole">游客</span></p>
           <p>Token 状态：<span id="tokenState">无 Token</span></p>
+          <button id="logoutBtn" class="gray-btn profile-logout-btn">退出登录</button>
         </div>
       </section>
     </main>

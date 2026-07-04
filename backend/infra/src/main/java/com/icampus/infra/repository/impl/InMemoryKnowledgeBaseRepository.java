@@ -85,6 +85,14 @@ public class InMemoryKnowledgeBaseRepository implements KnowledgeBaseRepository 
         return store.get(id);
     }
 
+    @Override
+    public boolean deleteById(Long id) {
+        if (id == null) {
+            return false;
+        }
+        return store.remove(id) != null;
+    }
+
     // ====== 预置测试数据 ======
 
     private void addMockData() {
