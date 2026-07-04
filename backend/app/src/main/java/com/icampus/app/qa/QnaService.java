@@ -194,31 +194,89 @@ public class QnaService {
         return resp;
     }
 
-    /**
-     * 热点问题 Top-N
-     */
-    public List<HotItemVO> getHotQuestions(int limit) {
-        List<Object[]> results = questionLogRepository.findHotQuestions(limit);
-        return results.stream()
-                .map(row -> new HotItemVO((String) row[0], (Long) row[1]))
-                .collect(Collectors.toList());
+/**
+ * 热点问题 Top-N。
+ *
+ * 对应用例：查看热点问答榜单
+ * 读取问答日志数据，统计问题热度，并按热度降序返回。
+ */
+public List<HotItemVO> getHotQuestions(int limit) {
+    int safeLimit = normalizeLimit(limit);
+
+    List<Object[]> results = questionLogRepository.findHotQuestions(safeLimit);
+
+    if (results == null || results.isEmpty()) {
+        return List.of();
     }
 
-    private double calculateConfidence(String userQuestion, KnowledgeBase bestMatch) {
-        String kbQuestion = bestMatch.getQuestion();
-        if (kbQuestion == null || kbQuestion.isEmpty()) return 0.5;
+    return results.stream()
+            .filter(row -> row != null && row.length >= 2)
+            .map(row -> new HotItemVO(
+                    row[0] == null ? "" : row[0].toString(),
+                    row[1] instanceof Number number ? number.longValue() : 0L
+            ))
+            .filter(item -> item.getQuestion() != null && !item.getQuestion().isBlank())
+            .collect(Collectors.toList());
+}
 
-        int maxLen = Math.max(userQuestion.length(), kbQuestion.length());
-        int minLen = Math.min(userQuestion.length(), kbQuestion.length());
-        double lengthRatio = (double) minLen / maxLen;
-
-        long commonChars = userQuestion.chars()
-                .filter(c -> kbQuestion.indexOf(c) >= 0)
-                .count();
-        double charOverlap = (double) commonChars / Math.max(userQuestion.length(), 1);
-
-        return Math.min(0.95, (lengthRatio * 0.3 + charOverlap * 0.7));
+private int normalizeLimit(int limit) {
+    if (limit <= 0) {
+        return 10;
     }
+
+    return Math.min(limit, 50);
+}
+
+/**
+ * 查询相关问题。
+ *
+ * 优先根据当前匹配知识的分类查找同类问题，
+ * 并排除当前问题本身。
+ */
+private List<RelatedQuestion> findRelatedQuestions(KnowledgeBase bestMatch) {
+    if (bestMatch == null || bestMatch.getCategory() == null) {
+        return List.of();
+    }
+
+    List<KnowledgeBase> relatedList =
+            knowledgeBaseRepository.findByCategory(bestMatch.getCategory());
+
+    if (relatedList == null || relatedList.isEmpty()) {
+        return List.of();
+    }
+
+    return relatedList.stream()
+            .filter(item -> item != null)
+            .filter(item -> item.getId() != null)
+            .filter(item -> !item.getId().equals(bestMatch.getId()))
+            .filter(item -> item.getQuestion() != null && !item.getQuestion().isBlank())
+            .limit(5)
+            .map(item -> RelatedQuestion.of(item.getId(), item.getQuestion()))
+            .collect(Collectors.toList());
+}
+
+/**
+ * 计算当前匹配知识的置信度。
+ */
+private double calculateConfidence(
+        String userQuestion,
+        List<String> extractedKeywords,
+        KnowledgeBase bestMatch
+) {
+    if (bestMatch == null) {
+        return 0.0;
+    }
+
+    return matchScoreCalculator.calculate(
+            userQuestion,
+            extractedKeywords,
+            bestMatch.getQuestion(),
+            bestMatch.getAnswer(),
+            bestMatch.getCategory(),
+            bestMatch.getKeywords()
+    );
+}
+
 
     private String toJson(List<RelatedQuestion> questions) {
         if (questions == null || questions.isEmpty()) return "[]";

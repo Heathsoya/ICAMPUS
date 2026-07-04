@@ -178,6 +178,20 @@ LOGGING = {
     "backup_count": 5,
 }
 
+# 告警配置
+ALERTING = {
+    "enabled": os.getenv("ALERT_ENABLED", "false").lower() == "true",
+    "provider": os.getenv("ALERT_PROVIDER", "webhook"),
+    "webhook_url": os.getenv("ALERT_WEBHOOK_URL", ""),
+    "webhook_timeout_seconds": int(os.getenv("ALERT_WEBHOOK_TIMEOUT_SECONDS", "10")),
+    "smtp_host": os.getenv("ALERT_SMTP_HOST", ""),
+    "smtp_port": int(os.getenv("ALERT_SMTP_PORT", "587")),
+    "smtp_username": os.getenv("ALERT_SMTP_USERNAME", ""),
+    "smtp_password": os.getenv("ALERT_SMTP_PASSWORD", ""),
+    "sender": os.getenv("ALERT_SENDER", ""),
+    "receivers": os.getenv("ALERT_RECEIVERS", ""),
+}
+
 # 调试模式
 DEBUG = os.getenv("SPIDER_DEBUG", "false").lower() == "true"
 

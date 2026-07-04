@@ -13,10 +13,17 @@ package com.icampus.app.qa.dto.response;
  */
 public class RelatedQuestion {
 
+    /**
+     * 相关问题 ID。
+     *
+     * 通常对应知识库中的问题 ID 或日志中的问题 ID。
+     */
+    private Long questionId;
 
-    private Long questionId;// 相关问题ID
-
-    private String question;// 相关问题
+    /**
+     * 相关问题内容。
+     */
+    private String question;
 
     public RelatedQuestion() {
     }
@@ -24,6 +31,10 @@ public class RelatedQuestion {
     public RelatedQuestion(Long questionId, String question) {
         this.questionId = questionId;
         this.question = question;
+    }
+
+    public static RelatedQuestion of(Long questionId, String question) {
+        return new RelatedQuestion(questionId, question);
     }
 
     public Long getQuestionId() {
@@ -40,5 +51,13 @@ public class RelatedQuestion {
 
     public void setQuestion(String question) {
         this.question = question;
+    }
+
+    @Override
+    public String toString() {
+        return "RelatedQuestion{" +
+                "questionId=" + questionId +
+                ", question='" + question + '\'' +
+                '}';
     }
 }

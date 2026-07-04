@@ -3,6 +3,7 @@ import logging
 
 import requests
 
+from alert import send_exception_alert
 from config import settings
 
 logger = logging.getLogger(__name__)
@@ -43,7 +44,8 @@ def _call_openai(prompt: str):
         data = response.json()
         return data["choices"][0]["message"]["content"]
     except Exception as exc:
-        logger.exception("OpenAI-compatible 大模型调用失败：%s", exc)
+        logger.exception("OpenAI 调用失败：%s", exc)
+        send_exception_alert("LLM 调用失败", exc, "OpenAI ChatCompletion 调用失败")
         raise
 
 
@@ -57,13 +59,8 @@ def _call_deepseekapi(prompt: str):
         headers["Authorization"] = f"Bearer {settings.DEEPSEEKAPI_KEY}"
 
     payload = {
-        "model": settings.LLM_MODEL,
-        "messages": [
-            {"role": "system", "content": "字段规则、数据库JSON格式要求"},
-            {"role": "user", "content": prompt},
-        ],
-        "temperature": 0,
-        "response_format": {"type": "json_object"},
+        settings.DEEPSEEKAPI_MODEL_FIELD: settings.LLM_MODEL,
+        settings.DEEPSEEKAPI_PROMPT_FIELD: prompt,
     }
 
     try:
@@ -78,9 +75,9 @@ def _call_deepseekapi(prompt: str):
         if settings.DEEPSEEKAPI_RESPONSE_FIELD in data:
             return data[settings.DEEPSEEKAPI_RESPONSE_FIELD]
         if isinstance(data, dict) and "choices" in data:
-            choice = data["choices"][0]
-            return choice.get("message", {}).get("content", "") or choice.get("text", "")
+            return data["choices"][0].get("text", "")
         return json.dumps(data, ensure_ascii=False)
     except Exception as exc:
         logger.exception("DeepseekAPI 调用失败：%s", exc)
+        send_exception_alert("LLM 调用失败", exc, "DeepseekAPI 调用失败")
         raise
