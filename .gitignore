@@ -29,3 +29,6 @@ application-local.yml
 # Temporary files
 *.tmp
 *.temp
+
+target/
+*.class
