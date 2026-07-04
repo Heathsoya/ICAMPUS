@@ -31,6 +31,26 @@ public class InMemoryKnowledgeBaseRepository implements KnowledgeBaseRepository 
     }
 
     @Override
+    public KnowledgeBase save(KnowledgeBase knowledgeBase) {
+        KnowledgeBase existing = store.values().stream()
+                .filter(item -> item.getQuestion().equals(knowledgeBase.getQuestion()))
+                .findFirst()
+                .orElse(null);
+        if (existing != null) {
+            knowledgeBase.setId(existing.getId());
+            knowledgeBase.setCreatedAt(existing.getCreatedAt());
+        } else if (knowledgeBase.getId() == null) {
+            knowledgeBase.setId(idGenerator.getAndIncrement());
+        }
+        if (knowledgeBase.getCreatedAt() == null) {
+            knowledgeBase.setCreatedAt(java.time.LocalDateTime.now());
+        }
+        knowledgeBase.setUpdatedAt(java.time.LocalDateTime.now());
+        store.put(knowledgeBase.getId(), knowledgeBase);
+        return knowledgeBase;
+    }
+
+    @Override
     public List<KnowledgeBase> search(String keyword) {
         if (keyword == null || keyword.isBlank()) {
             return new ArrayList<>(store.values());

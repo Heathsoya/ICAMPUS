@@ -1,0 +1,35 @@
+# Python 虚拟环境
+venv/
+env/
+.venv/
+.env/
+
+# 数据目录（生成文件不提交）
+data/processed/
+data/raw/
+logs/
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+
+# 爬虫生成的文本、数据
+
+
+*.json
+*.log
+
+# 系统垃圾文件
+.DS_Store
+Thumbs.db
+
+# IDE 配置
+.idea/
+.vscode/
+*.swp
+*.sublime-*
+
+# 其他无关项目
+spring-petclinic/
