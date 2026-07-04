@@ -83,6 +83,14 @@ public class MysqlKnowledgeBaseRepository implements KnowledgeBaseRepository {
         return toDomain(knowledgeBaseMapper.selectById(id));
     }
 
+    @Override
+    public boolean deleteById(Long id) {
+        if (id == null) {
+            return false;
+        }
+        return knowledgeBaseMapper.deleteById(id) > 0;
+    }
+
     private List<KnowledgeBase> toDomainList(List<KnowledgeBaseDO> dataList) {
         return dataList.stream().map(this::toDomain).toList();
     }

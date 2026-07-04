@@ -81,6 +81,25 @@ public class AdminService {
         log.info("审核完成 [id={}, status={}]", request.getId(), request.getStatus());
     }
 
+    @Transactional
+    public void deleteKnowledge(Long id) {
+        if (id == null) {
+            throw new BizException(BizCode.BAD_REQUEST);
+        }
+
+        KnowledgeBase knowledge = knowledgeBaseRepository.findById(id);
+        if (knowledge == null) {
+            throw new BizException(BizCode.NOT_FOUND);
+        }
+
+        boolean deleted = knowledgeBaseRepository.deleteById(id);
+        if (!deleted) {
+            throw new BizException(BizCode.NOT_FOUND);
+        }
+
+        log.info("知识库条目删除成功 [id={}]", id);
+    }
+
     public KnowledgeSummaryVO getKnowledgeSummary(int requestedLimit) {
         int limit = Math.max(1, Math.min(requestedLimit, 200));
         List<KnowledgeBase> allItems = knowledgeBaseRepository.findAll();

@@ -9,7 +9,9 @@ import com.icampus.app.service.AdminService;
 import com.icampus.app.service.CrawlerAdminService;
 import com.icampus.core.ApiResponse;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -58,6 +60,12 @@ public class AdminController {
     public ApiResponse<KnowledgeSummaryVO> knowledgeList(
             @RequestParam(name = "limit", defaultValue = "100") int limit) {
         return ApiResponse.success(adminService.getKnowledgeSummary(limit));
+    }
+
+    @DeleteMapping("/knowledge/{id}")
+    public ApiResponse<Void> deleteKnowledge(@PathVariable Long id) {
+        adminService.deleteKnowledge(id);
+        return ApiResponse.success();
     }
 
     @GetMapping("/crawler")
