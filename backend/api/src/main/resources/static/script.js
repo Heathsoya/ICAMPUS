@@ -8,8 +8,17 @@ const panels = document.querySelectorAll(".panel");
 
 let lastQuestion = "";
 let lastAnswer = "";
+let lastQuestionLogId = null;
+let lastKnowledgeId = null;
+let crawlerPollTimer = null;
 
 function switchPanel(targetId, activeTab) {
+  if (targetId === "contribution-panel" && !localStorage.getItem("token")) {
+    alert("请先登录后再提交贡献");
+    targetId = "login-panel";
+    activeTab = null;
+  }
+
   if (targetId === "audit-panel") {
     const role = localStorage.getItem("role");
     if (role !== "ADMIN") {
@@ -30,6 +39,11 @@ function switchPanel(targetId, activeTab) {
 
   document.getElementById(targetId).classList.add("active");
   refreshUserInfo();
+
+  if (targetId === "audit-panel") {
+    showAdminView("overview");
+    loadAdminOverview();
+  }
 }
 
 // 页面切换
@@ -84,8 +98,6 @@ async function requestJson(path, options = {}) {
 document.getElementById("registerBtn").addEventListener("click", async () => {
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value;
-  const role = document.querySelector("input[name='role']:checked").value;
-
   if (username === "" || password === "") {
     alert("请输入账号和密码");
     return;
@@ -99,8 +111,7 @@ document.getElementById("registerBtn").addEventListener("click", async () => {
       },
       body: JSON.stringify({
         username: username,
-        password: password,
-        role: role
+        password: password
       })
     });
 
@@ -114,8 +125,6 @@ document.getElementById("registerBtn").addEventListener("click", async () => {
 document.getElementById("loginBtn").addEventListener("click", async () => {
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value;
-  const role = document.querySelector("input[name='role']:checked").value;
-
   if (username === "" || password === "") {
     alert("请输入账号和密码");
     return;
@@ -129,18 +138,19 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
       },
       body: JSON.stringify({
         username: username,
-        password: password,
-        role: role
+        password: password
       })
     });
 
+    const role = data.role || "USER";
     localStorage.setItem("token", data.token || "");
-    localStorage.setItem("username", username);
+    localStorage.setItem("username", data.username || username);
     localStorage.setItem("role", role);
 
     alert("登录成功，当前身份：" + (role === "ADMIN" ? "管理员" : "普通用户"));
     refreshUserInfo();
     updateMenuByRole();
+    switchPanel("home-panel");
   } catch (error) {
     alert(error.message);
   }
@@ -155,6 +165,7 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
   alert("已退出登录");
   refreshUserInfo();
   updateMenuByRole();
+  switchPanel("home-panel");
 });
 
 // 智能问答
@@ -169,6 +180,9 @@ document.getElementById("askBtn").addEventListener("click", async () => {
 
   answer.value = "正在请求后端接口，请稍等...";
   lastQuestion = question;
+  lastAnswer = "";
+  lastQuestionLogId = null;
+  lastKnowledgeId = null;
 
   try {
     const data = await requestJson("/api/qna/ask", {
@@ -182,6 +196,8 @@ document.getElementById("askBtn").addEventListener("click", async () => {
     });
 
     lastAnswer = data.answer || data.result || "暂无答案";
+    lastQuestionLogId = data.questionLogId || null;
+    lastKnowledgeId = data.matchedKnowledgeId || null;
     answer.value = lastAnswer;
   } catch (error) {
     answer.value = error.message;
@@ -197,11 +213,11 @@ document.querySelectorAll(".example-question").forEach((btn) => {
 
 // 反馈
 document.getElementById("goodBtn").addEventListener("click", () => {
-  sendFeedback("GOOD");
+  sendFeedback("USEFUL");
 });
 
 document.getElementById("badBtn").addEventListener("click", () => {
-  sendFeedback("BAD");
+  sendFeedback("USELESS");
 });
 
 async function sendFeedback(type) {
@@ -212,7 +228,7 @@ async function sendFeedback(type) {
     return;
   }
 
-  if (lastQuestion === "") {
+  if (!lastQuestionLogId) {
     alert("请先提问，再进行反馈");
     return;
   }
@@ -224,9 +240,10 @@ async function sendFeedback(type) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        question: lastQuestion,
-        answer: lastAnswer,
-        feedback: type
+        questionLogId: lastQuestionLogId,
+        knowledgeId: lastKnowledgeId,
+        feedbackType: type,
+        feedbackContent: ""
       })
     });
 
@@ -281,8 +298,6 @@ document.getElementById("submitConBtn").addEventListener("click", async () => {
 
   const question = document.getElementById("conQuestion").value.trim();
   const answer = document.getElementById("conAnswer").value.trim();
-  const category = document.getElementById("conCategory").value.trim();
-
   if (question === "" || answer === "") {
     alert("问题和答案不能为空");
     return;
@@ -296,8 +311,7 @@ document.getElementById("submitConBtn").addEventListener("click", async () => {
       },
       body: JSON.stringify({
         question: question,
-        answer: answer,
-        category: category
+        answer: answer
       })
     });
 
@@ -305,14 +319,56 @@ document.getElementById("submitConBtn").addEventListener("click", async () => {
 
     document.getElementById("conQuestion").value = "";
     document.getElementById("conAnswer").value = "";
-    document.getElementById("conCategory").value = "";
   } catch (error) {
     alert(error.message);
   }
 });
 
-// 后台审核列表
+// 管理后台
 document.getElementById("loadAuditBtn").addEventListener("click", loadAuditList);
+document.getElementById("loadKnowledgeBtn").addEventListener("click", loadKnowledgeList);
+
+document.querySelectorAll(".admin-menu").forEach((button) => {
+  button.addEventListener("click", () => {
+    const view = button.dataset.adminView;
+    showAdminView(view);
+    if (view === "overview") loadAdminOverview();
+    if (view === "audit") loadAuditList();
+    if (view === "knowledge") loadKnowledgeList();
+    if (view === "crawler") loadCrawlerStatus();
+  });
+});
+
+function showAdminView(view) {
+  if (view !== "crawler" && crawlerPollTimer) {
+    clearTimeout(crawlerPollTimer);
+    crawlerPollTimer = null;
+  }
+  document.querySelectorAll(".admin-menu").forEach((button) => {
+    button.classList.toggle("active", button.dataset.adminView === view);
+  });
+  document.querySelectorAll(".admin-view").forEach((panel) => panel.classList.remove("active"));
+  const target = document.getElementById(`admin-${view}-view`);
+  if (target) target.classList.add("active");
+}
+
+async function loadAdminOverview() {
+  if (localStorage.getItem("role") !== "ADMIN") return;
+
+  try {
+    const [auditData, knowledgeData] = await Promise.all([
+      requestJson("/api/admin/audit"),
+      requestJson("/api/admin/knowledge?limit=100")
+    ]);
+    const auditList = Array.isArray(auditData) ? auditData : auditData.list || [];
+    const pendingItems = auditList.filter((item) => item.status === "pending");
+    document.getElementById("pendingCount").textContent = pendingItems.length;
+    document.getElementById("knowledgeCount").textContent = knowledgeData.total ?? 0;
+    document.getElementById("crawlerCount").textContent = knowledgeData.crawlerCount ?? 0;
+  } catch (error) {
+    alert(error.message);
+  }
+}
 
 async function loadAuditList() {
   const role = localStorage.getItem("role");
@@ -334,29 +390,90 @@ async function loadAuditList() {
 function renderAuditList(list) {
   const auditBody = document.getElementById("auditBody");
   const pendingCount = document.getElementById("pendingCount");
-  const knowledgeCount = document.getElementById("knowledgeCount");
-  if (pendingCount) pendingCount.textContent = list.length;
-  if (knowledgeCount) knowledgeCount.textContent = "待接入";
+  const pendingItems = list.filter((item) => item.status === "pending");
+  if (pendingCount) pendingCount.textContent = pendingItems.length;
 
   if (list.length === 0) {
-    auditBody.innerHTML = "<tr><td colspan='5'>暂无待审核内容</td></tr>";
+    auditBody.innerHTML = "<tr><td colspan='6'>暂无待审核内容</td></tr>";
     return;
   }
 
   auditBody.innerHTML = list.map((item) => {
+    const isPending = item.status === "pending";
     return `
       <tr>
-        <td>${item.id}</td>
-        <td>${item.question || item.title || ""}</td>
-        <td>${item.username || item.user || ""}</td>
-        <td>${item.status || "待审核"}</td>
+        <td>${escapeHtml(item.id)}</td>
+        <td>${escapeHtml(item.question || item.title)}</td>
+        <td class="audit-answer">${escapeHtml(item.answer || "-")}</td>
+        <td>${escapeHtml(item.submitter || "匿名用户")}</td>
+        <td>${escapeHtml(formatAuditStatus(item.status))}</td>
         <td>
-          <button onclick="auditItem(${item.id}, 'PASS')">通过</button>
-          <button class="danger-btn" onclick="auditItem(${item.id}, 'REJECT')">驳回</button>
+          ${isPending ? `
+            <button onclick="auditItem(${Number(item.id)}, 'approved')">通过</button>
+            <button class="danger-btn" onclick="auditItem(${Number(item.id)}, 'rejected')">驳回</button>
+          ` : "已处理"}
         </td>
       </tr>
     `;
   }).join("");
+}
+
+async function loadKnowledgeList() {
+  if (localStorage.getItem("role") !== "ADMIN") {
+    alert("只有管理员可以查看知识库");
+    return;
+  }
+
+  try {
+    const data = await requestJson("/api/admin/knowledge?limit=100");
+    renderKnowledgeList(data);
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+function renderKnowledgeList(data) {
+  const summary = data || {};
+  const list = Array.isArray(summary.items) ? summary.items : [];
+  document.getElementById("knowledgeCount").textContent = summary.total ?? list.length;
+  document.getElementById("crawlerCount").textContent = summary.crawlerCount ?? 0;
+
+  const knowledgeBody = document.getElementById("knowledgeBody");
+  if (list.length === 0) {
+    knowledgeBody.innerHTML = "<tr><td colspan='6'>暂无知识库内容</td></tr>";
+    return;
+  }
+
+  knowledgeBody.innerHTML = list.map((item) => {
+    const isCrawler = (item.source || "").includes("爬虫");
+    const updatedAt = (item.updatedAt || "").replace("T", " ").slice(0, 19);
+    return `
+      <tr>
+        <td>${escapeHtml(item.id)}</td>
+        <td>${escapeHtml(item.question)}</td>
+        <td>${escapeHtml(item.category || "未分类")}</td>
+        <td>${escapeHtml(item.keywords || "-")}</td>
+        <td><span class="source-badge ${isCrawler ? "crawler" : ""}">${escapeHtml(item.source || "人工维护")}</span></td>
+        <td>${escapeHtml(updatedAt || "-")}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function formatAuditStatus(status) {
+  if (status === "approved") return "已通过";
+  if (status === "rejected") return "已驳回";
+  return "待审核";
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#39;"
+  })[character]);
 }
 
 // 执行审核
@@ -376,15 +493,95 @@ async function auditItem(id, result) {
       },
       body: JSON.stringify({
         id: id,
-        result: result
+        status: result,
+        reason: result === "approved" ? "内容审核通过" : "内容审核驳回"
       })
     });
 
     alert("审核操作成功");
     loadAuditList();
+    loadKnowledgeList();
   } catch (error) {
     alert(error.message);
   }
+}
+
+// 爬虫任务管理
+document.getElementById("refreshCrawlerBtn").addEventListener("click", () => loadCrawlerStatus());
+document.getElementById("saveCrawlerScheduleBtn").addEventListener("click", saveCrawlerSchedule);
+document.getElementById("runCrawlerBtn").addEventListener("click", runCrawlerNow);
+
+async function loadCrawlerStatus(silent = false) {
+  if (localStorage.getItem("role") !== "ADMIN") return;
+  try {
+    const data = await requestJson("/api/admin/crawler");
+    renderCrawlerStatus(data);
+  } catch (error) {
+    if (!silent) alert(error.message);
+  }
+}
+
+async function saveCrawlerSchedule() {
+  const enabled = document.getElementById("crawlerEnabled").checked;
+  const intervalHours = Number(document.getElementById("crawlerInterval").value);
+  if (!Number.isInteger(intervalHours) || intervalHours < 1 || intervalHours > 168) {
+    alert("执行周期必须是1到168之间的整数");
+    return;
+  }
+
+  try {
+    const data = await requestJson("/api/admin/crawler/schedule", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ enabled, intervalHours })
+    });
+    renderCrawlerStatus(data);
+    alert(data.message || "爬虫周期已保存");
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function runCrawlerNow() {
+  const button = document.getElementById("runCrawlerBtn");
+  button.disabled = true;
+  try {
+    const data = await requestJson("/api/admin/crawler/run", { method: "POST" });
+    renderCrawlerStatus(data);
+    alert(data.message || "爬虫任务已提交");
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    if (!button.dataset.running) button.disabled = false;
+  }
+}
+
+function renderCrawlerStatus(data) {
+  const status = data || {};
+  document.getElementById("crawlerAvailableState").textContent = status.available ? "可用" : "不可用";
+  document.getElementById("crawlerRunningState").textContent = status.running ? "运行中" : "空闲";
+  document.getElementById("crawlerIntervalState").textContent = `${status.intervalHours || 24} 小时`;
+  document.getElementById("crawlerEnabled").checked = Boolean(status.enabled);
+  document.getElementById("crawlerInterval").value = status.intervalHours || 24;
+  document.getElementById("crawlerNextRun").textContent = formatCrawlerTime(status.nextRunAt);
+  document.getElementById("crawlerLastStarted").textContent = formatCrawlerTime(status.lastStartedAt);
+  document.getElementById("crawlerLastFinished").textContent = formatCrawlerTime(status.lastFinishedAt);
+  document.getElementById("crawlerLastResult").textContent = status.lastExitCode == null
+    ? "暂无记录"
+    : status.lastExitCode === 0 ? "执行成功" : `执行失败（${status.lastExitCode}）`;
+
+  const runButton = document.getElementById("runCrawlerBtn");
+  runButton.disabled = !status.available || status.running;
+  runButton.dataset.running = status.running ? "true" : "";
+
+  if (crawlerPollTimer) clearTimeout(crawlerPollTimer);
+  crawlerPollTimer = status.running
+    ? setTimeout(() => loadCrawlerStatus(true), 5000)
+    : null;
+}
+
+function formatCrawlerTime(value) {
+  return value ? value.replace("T", " ").slice(0, 19) : "--";
 }
 
 // 个人中心信息

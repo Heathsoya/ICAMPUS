@@ -7,6 +7,7 @@ from config.logging_config import setup_logging
 from config import settings
 from llm.processor import process_raw_item
 from output.exporter import export_to_csv, export_db_csv
+from output.mysql_importer import import_records
 from pipeline.cleaner import clean_text
 from pipeline.filter import should_skip
 from pipeline.validator import validate_processed_item

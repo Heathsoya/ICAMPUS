@@ -10,6 +10,11 @@ import java.util.List;
 public interface KnowledgeBaseRepository {
 
     /**
+     * 新增或按标准问题更新知识条目。
+     */
+    KnowledgeBase save(KnowledgeBase knowledgeBase);
+
+    /**
      * 全文检索匹配的知识库条目
      */
     List<KnowledgeBase> search(String keyword);

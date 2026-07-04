@@ -2,16 +2,23 @@ package com.icampus.app.service;
 
 import com.icampus.app.dto.request.AuditRequest;
 import com.icampus.app.dto.response.AuditItemVO;
+import com.icampus.app.dto.response.KnowledgeItemVO;
+import com.icampus.app.dto.response.KnowledgeSummaryVO;
 import com.icampus.core.BizCode;
 import com.icampus.core.BizException;
 import com.icampus.domain.entity.Contribution;
+import com.icampus.domain.entity.KnowledgeBase;
 import com.icampus.domain.enums.AuditStatusEnum;
 import com.icampus.domain.repository.ContributionRepository;
+import com.icampus.domain.repository.KnowledgeBaseRepository;
 import com.icampus.domain.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 /**
@@ -23,11 +30,14 @@ public class AdminService {
 
     private final ContributionRepository contributionRepository;
     private final UserRepository userRepository;
+    private final KnowledgeBaseRepository knowledgeBaseRepository;
 
     public AdminService(ContributionRepository contributionRepository,
-                        UserRepository userRepository) {
+                        UserRepository userRepository,
+                        KnowledgeBaseRepository knowledgeBaseRepository) {
         this.contributionRepository = contributionRepository;
         this.userRepository = userRepository;
+        this.knowledgeBaseRepository = knowledgeBaseRepository;
     }
 
     public List<AuditItemVO> getAuditList(String statusFilter) {
@@ -43,6 +53,7 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void audit(AuditRequest request) {
         Contribution contribution = contributionRepository.findById(request.getId());
         if (contribution == null) {
@@ -51,12 +62,40 @@ public class AdminService {
 
         try {
             AuditStatusEnum status = AuditStatusEnum.valueOf(request.getStatus().toUpperCase());
+            if (status == AuditStatusEnum.APPROVED) {
+                KnowledgeBase knowledge = new KnowledgeBase();
+                knowledge.setQuestion(contribution.getQuestion());
+                knowledge.setAnswer(contribution.getAnswer());
+                knowledge.setCategory("综合咨询");
+                knowledge.setKeywords(contribution.getQuestion());
+                knowledge.setSource("用户贡献");
+                knowledge.setCreatedAt(LocalDateTime.now());
+                knowledge.setUpdatedAt(LocalDateTime.now());
+                knowledgeBaseRepository.save(knowledge);
+            }
             contributionRepository.updateStatus(request.getId(), status.getCode(), request.getReason());
         } catch (IllegalArgumentException e) {
             throw new BizException(BizCode.INVALID_AUDIT_STATUS);
         }
 
         log.info("审核完成 [id={}, status={}]", request.getId(), request.getStatus());
+    }
+
+    public KnowledgeSummaryVO getKnowledgeSummary(int requestedLimit) {
+        int limit = Math.max(1, Math.min(requestedLimit, 200));
+        List<KnowledgeBase> allItems = knowledgeBaseRepository.findAll();
+
+        KnowledgeSummaryVO summary = new KnowledgeSummaryVO();
+        summary.setTotal(allItems.size());
+        summary.setCrawlerCount(allItems.stream()
+                .filter(item -> item.getSource() != null && item.getSource().contains("爬虫"))
+                .count());
+        summary.setItems(allItems.stream()
+                .sorted(Comparator.comparing(KnowledgeBase::getId).reversed())
+                .limit(limit)
+                .map(this::toKnowledgeItem)
+                .collect(Collectors.toList()));
+        return summary;
     }
 
     private AuditItemVO toAuditItem(Contribution c) {
@@ -71,6 +110,17 @@ public class AdminService {
             userRepository.findById(c.getUserId())
                     .ifPresent(user -> item.setSubmitter(user.getUsername()));
         }
+        return item;
+    }
+
+    private KnowledgeItemVO toKnowledgeItem(KnowledgeBase knowledge) {
+        KnowledgeItemVO item = new KnowledgeItemVO();
+        item.setId(knowledge.getId());
+        item.setQuestion(knowledge.getQuestion());
+        item.setCategory(knowledge.getCategory());
+        item.setKeywords(knowledge.getKeywords());
+        item.setSource(knowledge.getSource());
+        item.setUpdatedAt(knowledge.getUpdatedAt() != null ? knowledge.getUpdatedAt().toString() : null);
         return item;
     }
 }

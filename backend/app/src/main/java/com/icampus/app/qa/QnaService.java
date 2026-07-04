@@ -91,11 +91,13 @@ public class QnaService {
         AnswerSource answerSource;
         Double confidence;
         String matchedQuestion = null;
+        Long matchedKnowledgeId = null;
         List<RelatedQuestion> relatedQuestions = Collections.emptyList();
 
         if (!kbResults.isEmpty()) {
             KnowledgeBase bestMatch = kbResults.get(0);
             matchedQuestion = bestMatch.getQuestion();
+            matchedKnowledgeId = bestMatch.getId();
 
             if (bestMatch.getAnswer() != null && bestMatch.getAnswer().length() > 20) {
                 finalAnswer = llmClient.generateAnswer(userQuestion, bestMatch.getAnswer(), kbResults);
@@ -136,6 +138,7 @@ public class QnaService {
         AskVO vo = new AskVO();
         vo.setAnswer(finalAnswer);
         vo.setMatchedQuestion(matchedQuestion);
+        vo.setMatchedKnowledgeId(matchedKnowledgeId);
         vo.setCategory(analysis.getCategory());
         vo.setConfidence(confidence);
         vo.setAnswerSource(answerSource.name());
