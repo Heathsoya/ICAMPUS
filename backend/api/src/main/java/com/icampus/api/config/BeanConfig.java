@@ -1,12 +1,13 @@
 package com.icampus.api.config;
 
 import com.icampus.app.qa.QnaService;
+import com.icampus.app.qa.support.MatchScoreCalculator;
 import com.icampus.app.qa.support.QuestionSegmenter;
 import com.icampus.app.qa.support.QuestionValidator;
-import com.icampus.app.service.AdminService;
-import com.icampus.app.service.AuthService;
-import com.icampus.app.service.ContributionService;
-import com.icampus.app.service.CrawlerAdminService;
+import com.icampus.app.admin.AdminService;
+import com.icampus.app.admin.CrawlerAdminService;
+import com.icampus.app.contribution.ContributionService;
+import com.icampus.app.reglogin.AuthService;
 import com.icampus.domain.repository.AnswerFeedbackRepository;
 import com.icampus.domain.repository.ContributionRepository;
 import com.icampus.domain.repository.KnowledgeBaseRepository;
@@ -72,9 +73,11 @@ public class BeanConfig {
                                  AnswerFeedbackRepository answerFeedbackRepository,
                                  LlmClient llmClient,
                                  QuestionValidator questionValidator,
-                                 QuestionSegmenter questionSegmenter) {
+                                 QuestionSegmenter questionSegmenter,
+                                 MatchScoreCalculator matchScoreCalculator) {
         return new QnaService(knowledgeBaseRepository, questionLogRepository,
-                answerFeedbackRepository, llmClient, questionValidator, questionSegmenter);
+                answerFeedbackRepository, llmClient, questionValidator, questionSegmenter,
+                matchScoreCalculator);
     }
 
     @Bean
