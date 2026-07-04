@@ -6,6 +6,9 @@ import com.icampus.app.qa.dto.response.AskVO;
 import com.icampus.app.qa.dto.response.FeedbackVO;
 import com.icampus.app.qa.dto.response.HotItemVO;
 import com.icampus.app.qa.dto.response.RelatedQuestion;
+import com.icampus.app.qa.support.MatchScoreCalculator;
+import com.icampus.app.qa.support.QuestionSegmenter;
+import com.icampus.app.qa.support.QuestionValidator;
 import com.icampus.core.BizCode;
 import com.icampus.core.BizException;
 import com.icampus.domain.entity.AnswerFeedback;
@@ -38,21 +41,24 @@ public class QnaService {
     private final QuestionLogRepository questionLogRepository;
     private final AnswerFeedbackRepository answerFeedbackRepository;
     private final LlmClient llmClient;
-    private final com.icampus.app.qa.support.QuestionValidator questionValidator;
-    private final com.icampus.app.qa.support.QuestionSegmenter questionSegmenter;
+    private final QuestionValidator questionValidator;
+    private final QuestionSegmenter questionSegmenter;
+    private final MatchScoreCalculator matchScoreCalculator;
 
     public QnaService(KnowledgeBaseRepository knowledgeBaseRepository,
                       QuestionLogRepository questionLogRepository,
                       AnswerFeedbackRepository answerFeedbackRepository,
                       LlmClient llmClient,
-                      com.icampus.app.qa.support.QuestionValidator questionValidator,
-                      com.icampus.app.qa.support.QuestionSegmenter questionSegmenter) {
+                      QuestionValidator questionValidator,
+                      QuestionSegmenter questionSegmenter,
+                      MatchScoreCalculator matchScoreCalculator) {
         this.knowledgeBaseRepository = knowledgeBaseRepository;
         this.questionLogRepository = questionLogRepository;
         this.answerFeedbackRepository = answerFeedbackRepository;
         this.llmClient = llmClient;
         this.questionValidator = questionValidator;
         this.questionSegmenter = questionSegmenter;
+        this.matchScoreCalculator = matchScoreCalculator;
     }
 
     /**
@@ -102,7 +108,7 @@ public class QnaService {
             if (bestMatch.getAnswer() != null && bestMatch.getAnswer().length() > 20) {
                 finalAnswer = llmClient.generateAnswer(userQuestion, bestMatch.getAnswer(), kbResults);
                 answerSource = AnswerSource.KNOWLEDGE_BASE;
-                confidence = calculateConfidence(userQuestion, bestMatch);
+                confidence = calculateConfidence(userQuestion, List.copyOf(merged), bestMatch);
             } else {
                 finalAnswer = llmClient.generateAnswer(userQuestion, null, kbResults);
                 answerSource = AnswerSource.LLM;

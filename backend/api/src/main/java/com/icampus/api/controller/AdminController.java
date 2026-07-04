@@ -1,12 +1,12 @@
 package com.icampus.api.controller;
 
-import com.icampus.app.dto.request.AuditRequest;
-import com.icampus.app.dto.request.CrawlerScheduleRequest;
-import com.icampus.app.dto.response.AuditItemVO;
-import com.icampus.app.dto.response.CrawlerStatusVO;
-import com.icampus.app.dto.response.KnowledgeSummaryVO;
-import com.icampus.app.service.AdminService;
-import com.icampus.app.service.CrawlerAdminService;
+import com.icampus.app.admin.AdminService;
+import com.icampus.app.admin.CrawlerAdminService;
+import com.icampus.app.admin.audit.dto.request.AuditRequest;
+import com.icampus.app.admin.audit.dto.response.AuditItemVO;
+import com.icampus.app.admin.crawler.dto.request.CrawlerScheduleRequest;
+import com.icampus.app.admin.crawler.dto.response.CrawlerStatusVO;
+import com.icampus.app.admin.db_manage.dto.response.KnowledgeSummaryVO;
 import com.icampus.core.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
