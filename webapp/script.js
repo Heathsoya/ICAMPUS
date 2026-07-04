@@ -11,8 +11,17 @@ let lastAnswer = "";
 let lastQuestionLogId = null;
 let lastKnowledgeId = null;
 let crawlerPollTimer = null;
+let knowledgeCurrentPage = 1;
+let knowledgeTotal = 0;
+const knowledgePageSize = 50;
 
 function switchPanel(targetId, activeTab) {
+  if (targetId === "login-panel" && localStorage.getItem("token")) {
+    alert("你已登录，可在个人中心查看账号信息或退出登录");
+    targetId = "center-panel";
+    activeTab = null;
+  }
+
   if (targetId === "contribution-panel" && !localStorage.getItem("token")) {
     alert("请先登录后再提交贡献");
     targetId = "login-panel";
@@ -116,6 +125,8 @@ document.getElementById("registerBtn").addEventListener("click", async () => {
     });
 
     alert("注册成功，请登录");
+    document.getElementById("username").value = "";
+    document.getElementById("password").value = "";
   } catch (error) {
     alert(error.message);
   }
@@ -148,6 +159,8 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
     localStorage.setItem("role", role);
 
     alert("登录成功，当前身份：" + (role === "ADMIN" ? "管理员" : "普通用户"));
+    document.getElementById("username").value = "";
+    document.getElementById("password").value = "";
     refreshUserInfo();
     updateMenuByRole();
     switchPanel("home-panel");
@@ -178,7 +191,7 @@ document.getElementById("askBtn").addEventListener("click", async () => {
     return;
   }
 
-  answer.value = "正在请求后端接口，请稍等...";
+  answer.value = "查询中...";
   lastQuestion = question;
   lastAnswer = "";
   lastQuestionLogId = null;
@@ -199,6 +212,7 @@ document.getElementById("askBtn").addEventListener("click", async () => {
     lastQuestionLogId = data.questionLogId || null;
     lastKnowledgeId = data.matchedKnowledgeId || null;
     answer.value = lastAnswer;
+    updateRelatedInfo(data);
   } catch (error) {
     answer.value = error.message;
   }
@@ -207,9 +221,46 @@ document.getElementById("askBtn").addEventListener("click", async () => {
 // 示例问题
 document.querySelectorAll(".example-question").forEach((btn) => {
   btn.addEventListener("click", () => {
-    document.getElementById("question").value = btn.textContent;
+    if (btn.dataset.targetPanel) {
+      switchPanel(btn.dataset.targetPanel);
+      return;
+    }
+    document.getElementById("question").value = btn.textContent.replace(/^继续查询：/, "");
   });
 });
+
+function updateRelatedInfo(data) {
+  const title = document.getElementById("relatedTitle");
+  const buttons = Array.from(document.querySelectorAll(".example-question"));
+  const candidates = [
+    data.relatedInfo,
+    data.relatedInfos,
+    data.relatedQuestions,
+    data.related,
+    data.references,
+    data.sources
+  ];
+
+  const rawList = candidates.find((item) => Array.isArray(item)) || [];
+  const relatedList = rawList.map((item) => {
+    if (typeof item === "string") return item;
+    return item.question || item.title || item.content || item.name || "";
+  }).filter(Boolean).slice(0, buttons.length);
+
+  title.textContent = "相关信息";
+
+  const fallbackList = [
+    lastQuestion ? `继续查询：${lastQuestion}` : "暂无相关信息",
+    lastKnowledgeId ? `匹配知识库 ID：${lastKnowledgeId}` : "查看热点问题",
+    "提交补充信息"
+  ];
+
+  buttons.forEach((button, index) => {
+    const text = relatedList[index] || fallbackList[index];
+    button.textContent = text;
+    button.dataset.targetPanel = index === 2 && !relatedList[index] ? "contribution-panel" : "";
+  });
+}
 
 // 反馈
 document.getElementById("goodBtn").addEventListener("click", () => {
@@ -326,7 +377,15 @@ document.getElementById("submitConBtn").addEventListener("click", async () => {
 
 // 管理后台
 document.getElementById("loadAuditBtn").addEventListener("click", loadAuditList);
-document.getElementById("loadKnowledgeBtn").addEventListener("click", loadKnowledgeList);
+document.getElementById("loadKnowledgeBtn").addEventListener("click", () => loadKnowledgeList(1));
+document.getElementById("deleteSelectedKnowledgeBtn").addEventListener("click", deleteSelectedKnowledge);
+document.getElementById("prevKnowledgePageBtn").addEventListener("click", () => loadKnowledgeList(knowledgeCurrentPage - 1));
+document.getElementById("nextKnowledgePageBtn").addEventListener("click", () => loadKnowledgeList(knowledgeCurrentPage + 1));
+document.getElementById("selectAllKnowledge").addEventListener("change", (event) => {
+  document.querySelectorAll(".knowledge-checkbox").forEach((checkbox) => {
+    checkbox.checked = event.target.checked;
+  });
+});
 
 document.querySelectorAll(".admin-menu").forEach((button) => {
   button.addEventListener("click", () => {
@@ -418,14 +477,16 @@ function renderAuditList(list) {
   }).join("");
 }
 
-async function loadKnowledgeList() {
+async function loadKnowledgeList(page = knowledgeCurrentPage) {
   if (localStorage.getItem("role") !== "ADMIN") {
     alert("只有管理员可以查看知识库");
     return;
   }
 
+  knowledgeCurrentPage = Math.max(1, Number(page) || 1);
+
   try {
-    const data = await requestJson("/api/admin/knowledge?limit=100");
+    const data = await requestJson(`/api/admin/knowledge?page=${knowledgeCurrentPage}&limit=${knowledgePageSize}`);
     renderKnowledgeList(data);
   } catch (error) {
     alert(error.message);
@@ -434,13 +495,24 @@ async function loadKnowledgeList() {
 
 function renderKnowledgeList(data) {
   const summary = data || {};
-  const list = Array.isArray(summary.items) ? summary.items : [];
-  document.getElementById("knowledgeCount").textContent = summary.total ?? list.length;
+  const list = Array.isArray(summary.items) ? summary.items : Array.isArray(summary.list) ? summary.list : [];
+  knowledgeTotal = Number(summary.total ?? list.length);
+  const totalPages = Math.max(1, Math.ceil(knowledgeTotal / knowledgePageSize));
+
+  if (knowledgeCurrentPage > totalPages) {
+    knowledgeCurrentPage = totalPages;
+  }
+
+  document.getElementById("knowledgeCount").textContent = knowledgeTotal;
   document.getElementById("crawlerCount").textContent = summary.crawlerCount ?? 0;
+  updateKnowledgePagination(totalPages);
+
+  const selectAll = document.getElementById("selectAllKnowledge");
+  if (selectAll) selectAll.checked = false;
 
   const knowledgeBody = document.getElementById("knowledgeBody");
   if (list.length === 0) {
-    knowledgeBody.innerHTML = "<tr><td colspan='6'>暂无知识库内容</td></tr>";
+    knowledgeBody.innerHTML = "<tr><td colspan='7'>暂无知识库内容</td></tr>";
     return;
   }
 
@@ -449,6 +521,7 @@ function renderKnowledgeList(data) {
     const updatedAt = (item.updatedAt || "").replace("T", " ").slice(0, 19);
     return `
       <tr>
+        <td class="checkbox-cell"><input class="knowledge-checkbox" type="checkbox" value="${escapeHtml(item.id)}" aria-label="选择知识库记录 ${escapeHtml(item.id)}"></td>
         <td>${escapeHtml(item.id)}</td>
         <td>${escapeHtml(item.question)}</td>
         <td>${escapeHtml(item.category || "未分类")}</td>
@@ -458,6 +531,57 @@ function renderKnowledgeList(data) {
       </tr>
     `;
   }).join("");
+}
+
+function updateKnowledgePagination(totalPages) {
+  const pageInfo = document.getElementById("knowledgePageInfo");
+  const prevButton = document.getElementById("prevKnowledgePageBtn");
+  const nextButton = document.getElementById("nextKnowledgePageBtn");
+
+  if (pageInfo) pageInfo.textContent = `第 ${knowledgeCurrentPage} 页 / 共 ${totalPages} 页，每页 ${knowledgePageSize} 条`;
+  if (prevButton) prevButton.disabled = knowledgeCurrentPage <= 1;
+  if (nextButton) nextButton.disabled = knowledgeCurrentPage >= totalPages;
+}
+
+function getSelectedKnowledgeIds() {
+  return Array.from(document.querySelectorAll(".knowledge-checkbox:checked"))
+    .map((checkbox) => Number(checkbox.value))
+    .filter((id) => Number.isFinite(id));
+}
+
+async function deleteSelectedKnowledge() {
+  const role = localStorage.getItem("role");
+  if (role !== "ADMIN") {
+    alert("只有管理员可以删除知识库记录");
+    return;
+  }
+
+  const ids = getSelectedKnowledgeIds();
+  if (ids.length === 0) {
+    alert("请先选择要删除的知识库记录");
+    return;
+  }
+
+  if (!confirm(`确认删除选中的 ${ids.length} 条知识库记录吗？`)) {
+    return;
+  }
+
+  try {
+    try {
+      await requestJson("/api/admin/knowledge/batch", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids })
+      });
+    } catch (batchError) {
+      await Promise.all(ids.map((id) => requestJson(`/api/admin/knowledge/${id}`, { method: "DELETE" })));
+    }
+
+    alert("删除成功");
+    loadKnowledgeList(knowledgeCurrentPage);
+  } catch (error) {
+    alert(error.message);
+  }
 }
 
 function formatAuditStatus(status) {
@@ -599,13 +723,23 @@ function refreshUserInfo() {
 // 根据身份控制菜单显示
 function updateMenuByRole() {
   const role = localStorage.getItem("role");
+  const token = localStorage.getItem("token");
   const adminTab = document.querySelector(".admin-tab");
+  const loginTab = document.querySelector(".login-tab");
+  const guestOnlyElements = document.querySelectorAll(".guest-only");
+  const logoutButton = document.getElementById("logoutBtn");
 
   if (role === "ADMIN") {
     adminTab.style.display = "block";
   } else {
     adminTab.style.display = "none";
   }
+
+  if (loginTab) loginTab.style.display = token ? "none" : "block";
+  guestOnlyElements.forEach((element) => {
+    element.style.display = token ? "none" : "inline-flex";
+  });
+  if (logoutButton) logoutButton.style.display = token ? "inline-flex" : "none";
 }
 
 refreshUserInfo();
