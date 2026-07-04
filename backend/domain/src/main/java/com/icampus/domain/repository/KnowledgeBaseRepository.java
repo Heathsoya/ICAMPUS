@@ -30,4 +30,6 @@ public interface KnowledgeBaseRepository {
     List<KnowledgeBase> findAll();
 
     KnowledgeBase findById(Long id);
+
+    boolean deleteById(Long id);
 }
