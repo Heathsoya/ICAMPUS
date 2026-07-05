@@ -245,20 +245,19 @@ function updateRelatedInfo(data) {
   const relatedList = rawList.map((item) => {
     if (typeof item === "string") return item;
     return item.question || item.title || item.content || item.name || "";
-  }).filter(Boolean).slice(0, buttons.length);
+  }).filter(Boolean).slice(0, 1);
 
   title.textContent = "相关信息";
 
   const fallbackList = [
     lastQuestion ? `继续查询：${lastQuestion}` : "暂无相关信息",
-    "查看热点问题",
     "提交补充信息"
   ];
 
   buttons.forEach((button, index) => {
-    const text = relatedList[index] || fallbackList[index];
+    const text = index === 0 ? (relatedList[0] || fallbackList[0]) : fallbackList[1];
     button.textContent = text;
-    button.dataset.targetPanel = index === 2 && !relatedList[index] ? "contribution-panel" : "";
+    button.dataset.targetPanel = index === 1 ? "contribution-panel" : "";
   });
 }
 
