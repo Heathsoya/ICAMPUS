@@ -251,7 +251,7 @@ function updateRelatedInfo(data) {
 
   const fallbackList = [
     lastQuestion ? `继续查询：${lastQuestion}` : "暂无相关信息",
-    lastKnowledgeId ? `匹配知识库 ID：${lastKnowledgeId}` : "查看热点问题",
+    "查看热点问题",
     "提交补充信息"
   ];
 
