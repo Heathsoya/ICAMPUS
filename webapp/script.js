@@ -512,13 +512,14 @@ function renderKnowledgeList(data) {
 
   const knowledgeBody = document.getElementById("knowledgeBody");
   if (list.length === 0) {
-    knowledgeBody.innerHTML = "<tr><td colspan='7'>暂无知识库内容</td></tr>";
+    knowledgeBody.innerHTML = "<tr><td colspan='8'>暂无知识库内容</td></tr>";
     return;
   }
 
   knowledgeBody.innerHTML = list.map((item) => {
     const isCrawler = (item.source || "").includes("爬虫");
     const updatedAt = (item.updatedAt || "").replace("T", " ").slice(0, 19);
+    const itemId = Number(item.id);
     return `
       <tr>
         <td class="checkbox-cell"><input class="knowledge-checkbox" type="checkbox" value="${escapeHtml(item.id)}" aria-label="选择知识库记录 ${escapeHtml(item.id)}"></td>
@@ -528,6 +529,7 @@ function renderKnowledgeList(data) {
         <td>${escapeHtml(item.keywords || "-")}</td>
         <td><span class="source-badge ${isCrawler ? "crawler" : ""}">${escapeHtml(item.source || "人工维护")}</span></td>
         <td>${escapeHtml(updatedAt || "-")}</td>
+        <td><button class="danger-btn" onclick="deleteKnowledgeItem(${itemId})">删除</button></td>
       </tr>
     `;
   }).join("");
@@ -579,6 +581,33 @@ async function deleteSelectedKnowledge() {
 
     alert("删除成功");
     loadKnowledgeList(knowledgeCurrentPage);
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function deleteKnowledgeItem(id) {
+  const role = localStorage.getItem("role");
+  if (role !== "ADMIN") {
+    alert("只有管理员可以删除知识库条目");
+    return;
+  }
+
+  const knowledgeId = Number(id);
+  if (!Number.isFinite(knowledgeId) || knowledgeId <= 0) {
+    alert("知识库条目 ID 无效");
+    return;
+  }
+
+  if (!confirm("确定要删除该知识库条目吗？删除后不可恢复。")) {
+    return;
+  }
+
+  try {
+    await requestJson(`/api/admin/knowledge/${knowledgeId}`, { method: "DELETE" });
+    alert("删除成功");
+    loadKnowledgeList();
+    loadAdminOverview();
   } catch (error) {
     alert(error.message);
   }
