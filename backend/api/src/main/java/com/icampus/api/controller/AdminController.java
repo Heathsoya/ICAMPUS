@@ -6,6 +6,7 @@ import com.icampus.app.admin.audit.dto.request.AuditRequest;
 import com.icampus.app.admin.audit.dto.response.AuditItemVO;
 import com.icampus.app.admin.crawler.dto.request.CrawlerScheduleRequest;
 import com.icampus.app.admin.crawler.dto.response.CrawlerStatusVO;
+import com.icampus.app.admin.db_manage.dto.request.DeleteKnowledgeBatchRequest;
 import com.icampus.app.admin.db_manage.dto.response.KnowledgeSummaryVO;
 import com.icampus.core.ApiResponse;
 import jakarta.validation.Valid;
@@ -58,13 +59,21 @@ public class AdminController {
      */
     @GetMapping("/knowledge")
     public ApiResponse<KnowledgeSummaryVO> knowledgeList(
+            @RequestParam(name = "page", defaultValue = "1") int page,
             @RequestParam(name = "limit", defaultValue = "100") int limit) {
-        return ApiResponse.success(adminService.getKnowledgeSummary(limit));
+        return ApiResponse.success(adminService.getKnowledgeSummary(page, limit));
     }
 
     @DeleteMapping("/knowledge/{id}")
     public ApiResponse<Void> deleteKnowledge(@PathVariable Long id) {
         adminService.deleteKnowledge(id);
+        return ApiResponse.success();
+    }
+
+    @DeleteMapping("/knowledge/batch")
+    public ApiResponse<Void> deleteKnowledgeBatch(
+            @Valid @RequestBody DeleteKnowledgeBatchRequest request) {
+        adminService.deleteKnowledgeBatch(request.getIds());
         return ApiResponse.success();
     }
 
