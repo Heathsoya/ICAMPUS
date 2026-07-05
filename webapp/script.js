@@ -212,20 +212,16 @@ document.getElementById("askBtn").addEventListener("click", async () => {
     lastQuestionLogId = data.questionLogId || null;
     lastKnowledgeId = data.matchedKnowledgeId || null;
     answer.value = lastAnswer;
-    updateRelatedInfo(data);
   } catch (error) {
     answer.value = error.message;
   }
 });
 
 // 示例问题
+// 问答完成后不再把这里改成“相关信息”，始终展示固定的常见问题。
 document.querySelectorAll(".example-question").forEach((btn) => {
   btn.addEventListener("click", () => {
-    if (btn.dataset.targetPanel) {
-      switchPanel(btn.dataset.targetPanel);
-      return;
-    }
-    document.getElementById("question").value = btn.textContent.replace(/^继续查询：/, "");
+    document.getElementById("question").value = btn.textContent;
   });
 });
 
