@@ -212,55 +212,18 @@ document.getElementById("askBtn").addEventListener("click", async () => {
     lastQuestionLogId = data.questionLogId || null;
     lastKnowledgeId = data.matchedKnowledgeId || null;
     answer.value = lastAnswer;
-    updateRelatedInfo(data);
   } catch (error) {
     answer.value = error.message;
   }
 });
 
 // 示例问题
+// 问答完成后不再把这里改成“相关信息”，始终展示固定的常见问题。
 document.querySelectorAll(".example-question").forEach((btn) => {
   btn.addEventListener("click", () => {
-    if (btn.dataset.targetPanel) {
-      switchPanel(btn.dataset.targetPanel);
-      return;
-    }
-    document.getElementById("question").value = btn.textContent.replace(/^继续查询：/, "");
+    document.getElementById("question").value = btn.textContent;
   });
 });
-
-function updateRelatedInfo(data) {
-  const title = document.getElementById("relatedTitle");
-  const buttons = Array.from(document.querySelectorAll(".example-question"));
-  const candidates = [
-    data.relatedInfo,
-    data.relatedInfos,
-    data.relatedQuestions,
-    data.related,
-    data.references,
-    data.sources
-  ];
-
-  const rawList = candidates.find((item) => Array.isArray(item)) || [];
-  const relatedList = rawList.map((item) => {
-    if (typeof item === "string") return item;
-    return item.question || item.title || item.content || item.name || "";
-  }).filter(Boolean).slice(0, buttons.length);
-
-  title.textContent = "相关信息";
-
-  const fallbackList = [
-    lastQuestion ? `继续查询：${lastQuestion}` : "暂无相关信息",
-    lastKnowledgeId ? `匹配知识库 ID：${lastKnowledgeId}` : "查看热点问题",
-    "提交补充信息"
-  ];
-
-  buttons.forEach((button, index) => {
-    const text = relatedList[index] || fallbackList[index];
-    button.textContent = text;
-    button.dataset.targetPanel = index === 2 && !relatedList[index] ? "contribution-panel" : "";
-  });
-}
 
 // 反馈
 document.getElementById("goodBtn").addEventListener("click", () => {
