@@ -51,6 +51,9 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/qna/hot").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/qna/ask").permitAll()
 
+                    // 前端静态页面
+                    .requestMatchers("/", "/index.html", "/style.css", "/script.js", "/*.ico", "/error").permitAll()
+
                     // 管理员接口
                     .requestMatchers("/api/admin/**").hasRole("ADMIN")
 

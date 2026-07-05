@@ -1,12 +1,12 @@
 package com.icampus.api.controller;
 
 import com.icampus.api.config.CurrentUserId;
-import com.icampus.app.dto.request.AskRequest;
-import com.icampus.app.dto.request.FeedbackRequest;
-import com.icampus.app.dto.response.AskVO;
-import com.icampus.app.dto.response.FeedbackVO;
-import com.icampus.app.dto.response.HotItemVO;
-import com.icampus.app.service.QnaService;
+import com.icampus.app.qa.QnaService;
+import com.icampus.app.qa.dto.request.AskRequest;
+import com.icampus.app.qa.dto.request.FeedbackRequest;
+import com.icampus.app.qa.dto.response.AskVO;
+import com.icampus.app.qa.dto.response.FeedbackVO;
+import com.icampus.app.qa.dto.response.HotItemVO;
 import com.icampus.core.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;

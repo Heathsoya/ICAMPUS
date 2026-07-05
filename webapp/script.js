@@ -225,6 +225,39 @@ document.querySelectorAll(".example-question").forEach((btn) => {
   });
 });
 
+function updateRelatedInfo(data) {
+  const title = document.getElementById("relatedTitle");
+  const buttons = Array.from(document.querySelectorAll(".example-question"));
+  const candidates = [
+    data.relatedInfo,
+    data.relatedInfos,
+    data.relatedQuestions,
+    data.related,
+    data.references,
+    data.sources
+  ];
+
+  const rawList = candidates.find((item) => Array.isArray(item)) || [];
+  const relatedList = rawList.map((item) => {
+    if (typeof item === "string") return item;
+    return item.question || item.title || item.content || item.name || "";
+  }).filter(Boolean).slice(0, buttons.length);
+
+  title.textContent = "相关信息";
+
+  const fallbackList = [
+    lastQuestion ? `继续查询：${lastQuestion}` : "暂无相关信息",
+    "查看热点问题",
+    "提交补充信息"
+  ];
+
+  buttons.forEach((button, index) => {
+    const text = relatedList[index] || fallbackList[index];
+    button.textContent = text;
+    button.dataset.targetPanel = index === 2 && !relatedList[index] ? "contribution-panel" : "";
+  });
+}
+
 // 反馈
 document.getElementById("goodBtn").addEventListener("click", () => {
   sendFeedback("USEFUL");

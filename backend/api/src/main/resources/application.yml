@@ -4,11 +4,40 @@ server:
 spring:
   application:
     name: icampus-api
+  datasource:
+    url: jdbc:mysql://localhost:3306/icampus?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:}
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath*:/mapper/**/*.xml
+
+# 大模型配置（通义千问/DeepSeek 二选一）
+llm:
+  provider: qwen
+  qwen:
+    api-key: ${QWEN_API_KEY:demo}
+    model: qwen-plus
+    url: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+  deepseek:
+    api-key: ${DEEPSEEK_API_KEY:demo}
+    model: deepseek-chat
+    url: https://api.deepseek.com/v1/chat/completions
 
 # JWT 配置
 jwt:
-  secret: icampus-jwt-secret-key-2024-min-length-32
+  secret: ${JWT_SECRET:icampus-jwt-secret-key-2024-min-length-32}
   expiration-ms: 86400000  # 24小时
+
+crawler:
+  script-path: ${CRAWLER_SCRIPT_PATH:/opt/icampus/spider/run_server.sh}
+  state-path: ${CRAWLER_STATE_PATH:/opt/icampus/spider/data/crawler-admin.properties}
+  log-path: ${CRAWLER_LOG_PATH:/opt/icampus/spider/logs/admin-crawler.log}
+  default-enabled: ${CRAWLER_DEFAULT_ENABLED:true}
+  default-interval-hours: ${CRAWLER_DEFAULT_INTERVAL_HOURS:24}
 
 # 日志
 logging:

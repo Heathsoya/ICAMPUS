@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>校园生活百事通</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="app">
+    <h1>校园生活百事通</h1>
+
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-target="login-panel" role="tab">登录界面</button>
+      <button class="tab" data-target="qa-panel" role="tab">智能问答</button>
+      <button class="tab" data-target="data-panel" role="tab">批量获取数据</button>
+    </div>
+
+    <main class="content">
+      <section id="login-panel" class="panel active" role="tabpanel">
+        <div class="form-row">
+          <label for="username">账号</label>
+          <input id="username" type="text" placeholder="请输入账号" />
+        </div>
+
+        <div class="form-row">
+          <label for="password">密码</label>
+          <input id="password" type="password" placeholder="请输入密码" />
+        </div>
+
+        <div class="button-row">
+          <button id="loginBtn">登录</button>
+          <button id="registerBtn">注册</button>
+        </div>
+
+        <p class="tip">说明：本项目为接口与框架分层演示，登录接口返回模拟 token。</p>
+      </section>
+
+      <section id="qa-panel" class="panel" role="tabpanel">
+        <div class="qa-row">
+          <label for="question">请输入问题</label>
+          <input id="question" type="text" placeholder="例如：食堂几点关门" />
+          <button id="askBtn">发送</button>
+        </div>
+
+        <textarea id="answer" readonly placeholder="后端返回的答案会显示在这里"></textarea>
+      </section>
+
+      <section id="data-panel" class="panel" role="tabpanel">
+        <div class="button-row left">
+          <button id="loadBtn">获取数据</button>
+          <button id="chooseBtn">选择CSV</button>
+          <button id="uploadBtn">上传CSV</button>
+          <input id="csvInput" type="file" accept=".csv" hidden />
+        </div>
+
+        <p id="fileName" class="tip">CSV格式：question,category,answer</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>id</th>
+              <th>question</th>
+              <th>category</th>
+            </tr>
+          </thead>
+          <tbody id="dataBody"></tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <script src="./script.js"></script>
+</body>
+</html>

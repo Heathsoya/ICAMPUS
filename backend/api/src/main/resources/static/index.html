@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iCampus SCUT</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="topbar">
+      <div class="brand tab active" data-target="home-panel" role="button" tabindex="0">
+        <span class="brand-mark">iC</span>
+        <div>
+          <strong>iCampus SCUT</strong>
+          <small>智慧校园问答与知识库平台</small>
+        </div>
+      </div>
+
+      <nav class="tabs" aria-label="主导航">
+        <button class="tab active" data-target="home-panel">首页</button>
+        <button class="tab login-tab" data-target="login-panel">登录/注册</button>
+        <button class="tab" data-target="hot-panel">热点榜</button>
+        <button class="tab user-tab" data-target="contribution-panel">用户贡献</button>
+        <button class="tab admin-tab" data-target="audit-panel">管理后台</button>
+        <button class="tab" data-target="center-panel">个人中心</button>
+      </nav>
+    </header>
+
+    <main class="content">
+      <!-- 首页问答 -->
+      <section id="home-panel" class="panel active">
+        <div class="hero">
+          <div class="hero-copy">
+            <p class="eyebrow">iCampus SCUT 智慧校园平台</p>
+            <h1>让华工校园信息，像搜索一样简单。</h1>
+            <p class="hero-text">面向华南理工大学学生的校园生活服务入口，整合常见问答、热点问题、用户贡献与管理员审核，后续可继续接入知识库、爬虫数据和更多校园服务模块。</p>
+            <div class="hero-actions">
+              <button class="primary-action tab-link guest-only" data-target="login-panel">立即登录</button>
+              <button class="secondary-action tab-link" data-target="contribution-panel">提交问题</button>
+            </div>
+          </div>
+
+          <div class="hero-card">
+            <div class="search-title">智能问答</div>
+            <div class="qa-box hero-search">
+              <input id="question" type="text" placeholder="请输入你的问题，例如：食堂几点关门？">
+              <button id="askBtn">发送</button>
+            </div>
+            <div class="example-box">
+              <span id="relatedTitle">常用问题</span>
+              <button class="example-question">图书馆开放时间</button>
+              <button class="example-question">校园卡丢了怎么办</button>
+              <button class="example-question">宿舍报修流程</button>
+            </div>
+            <textarea id="answer" readonly placeholder="问答结果会显示在这里"></textarea>
+            <div class="feedback-box">
+              <span>答案反馈：</span>
+              <button id="goodBtn" class="light-btn">有帮助</button>
+              <button id="badBtn" class="light-btn">没帮助</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 登录注册 -->
+      <section id="login-panel" class="panel">
+        <div class="section-head">
+          <p class="eyebrow">ACCOUNT</p>
+          <h2>系统登录 / 注册</h2>
+          <p>普通用户用于提问、反馈和贡献内容；管理员用于进入独立后台进行审核与数据查看。</p>
+        </div>
+
+        <div class="form-card">
+          <div class="form-row">
+            <label for="username">账号</label>
+            <input id="username" type="text" placeholder="请输入账号">
+          </div>
+
+          <div class="form-row">
+            <label for="password">密码</label>
+            <input id="password" type="password" placeholder="请输入密码">
+          </div>
+
+          <div class="button-row">
+            <button id="loginBtn">登录</button>
+            <button id="registerBtn" class="light-btn">注册账号</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 热点榜 -->
+      <section id="hot-panel" class="panel">
+        <div class="section-head row-head">
+          <div>
+            <p class="eyebrow">HOT QUESTIONS</p>
+            <h2>热点榜</h2>
+            <p>根据用户提问频率展示当前最关注的问题。</p>
+          </div>
+          <button id="loadHotBtn">加载热点问题</button>
+        </div>
+
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>排名</th>
+                <th>问题</th>
+                <th>热度</th>
+              </tr>
+            </thead>
+            <tbody id="hotBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 用户贡献 -->
+      <section id="contribution-panel" class="panel">
+        <div class="section-head">
+          <p class="eyebrow">CONTRIBUTION</p>
+          <h2>用户贡献</h2>
+          <p>用户可以补充问题和答案，审核通过后可进入知识库，提升系统回答能力。</p>
+        </div>
+
+        <div class="form-card wide-card">
+          <div class="form-row">
+            <label for="conQuestion">问题标题</label>
+            <input id="conQuestion" type="text" placeholder="请输入问题标题">
+          </div>
+
+          <div class="form-row top">
+            <label for="conAnswer">答案内容</label>
+            <textarea id="conAnswer" placeholder="请输入答案内容"></textarea>
+          </div>
+
+          <button id="submitConBtn">提交贡献</button>
+        </div>
+      </section>
+
+      <!-- 管理后台 -->
+      <section id="audit-panel" class="panel admin-panel">
+        <div class="admin-layout">
+          <aside class="admin-sidebar">
+            <h2>管理后台</h2>
+            <p>管理员独立工作台</p>
+            <button class="admin-menu active" data-admin-view="overview">数据概览</button>
+            <button class="admin-menu" data-admin-view="audit">内容审核</button>
+            <button class="admin-menu" data-admin-view="knowledge">知识库状态</button>
+            <button class="admin-menu" data-admin-view="crawler">爬虫任务</button>
+          </aside>
+
+          <div class="admin-main">
+            <div id="admin-overview-view" class="admin-view active">
+              <div class="section-head">
+                <p class="eyebrow">ADMIN DASHBOARD</p>
+                <h2>后台数据总览</h2>
+                <p>当前内容审核和知识库运行状态。</p>
+              </div>
+
+              <div class="stat-grid">
+                <div class="stat-card">
+                  <span id="pendingCount">--</span>
+                  <p>待审核内容</p>
+                </div>
+                <div class="stat-card">
+                  <span id="knowledgeCount">--</span>
+                  <p>知识库条目</p>
+                </div>
+                <div class="stat-card">
+                  <span id="crawlerCount">--</span>
+                  <p>爬虫导入</p>
+                </div>
+              </div>
+            </div>
+
+            <div id="admin-audit-view" class="admin-view">
+              <div class="section-head row-head">
+                <div>
+                  <p class="eyebrow">CONTENT REVIEW</p>
+                  <h2>内容审核</h2>
+                  <p>审核用户提交的问题和答案。</p>
+                </div>
+                <button id="loadAuditBtn">刷新审核列表</button>
+              </div>
+
+              <div class="table-card">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>问题</th>
+                      <th>答案</th>
+                      <th>提交用户</th>
+                      <th>状态</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="auditBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div id="admin-knowledge-view" class="admin-view">
+              <div class="section-head row-head">
+                <div>
+                  <p class="eyebrow">KNOWLEDGE BASE</p>
+                  <h2>知识库状态</h2>
+                  <p>查看人工维护和爬虫导入的知识条目。</p>
+                </div>
+                <button id="loadKnowledgeBtn">刷新知识库</button>
+              </div>
+
+              <div class="table-card">
+                <table class="knowledge-table">
+                  <thead>
+                    <tr>
+                      <th class="checkbox-cell"><input id="selectAllKnowledge" type="checkbox" aria-label="全选知识库记录"></th>
+                      <th>ID</th>
+                      <th>问题</th>
+                      <th>分类</th>
+                      <th>关键词</th>
+                      <th>来源</th>
+                      <th>更新时间</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="knowledgeBody"></tbody>
+                </table>
+              </div>
+
+              <div class="knowledge-footer">
+                <button id="deleteSelectedKnowledgeBtn" class="danger-btn">批量删除</button>
+                <div class="pagination">
+                  <button id="prevKnowledgePageBtn" class="light-btn">上一页</button>
+                  <span id="knowledgePageInfo">第 1 页 / 共 1 页</span>
+                  <button id="nextKnowledgePageBtn" class="light-btn">下一页</button>
+                </div>
+              </div>
+            </div>
+
+            <div id="admin-crawler-view" class="admin-view">
+              <div class="section-head row-head">
+                <div>
+                  <p class="eyebrow">CRAWLER JOB</p>
+                  <h2>爬虫任务</h2>
+                  <p>管理校园公告抓取、问答生成和知识库导入周期。</p>
+                </div>
+                <button id="refreshCrawlerBtn" class="light-btn">刷新状态</button>
+              </div>
+
+              <div class="stat-grid crawler-stat-grid">
+                <div class="stat-card">
+                  <span id="crawlerAvailableState">--</span>
+                  <p>脚本状态</p>
+                </div>
+                <div class="stat-card">
+                  <span id="crawlerRunningState">--</span>
+                  <p>运行状态</p>
+                </div>
+                <div class="stat-card">
+                  <span id="crawlerIntervalState">--</span>
+                  <p>执行周期</p>
+                </div>
+              </div>
+
+              <div class="crawler-controls">
+                <label class="crawler-toggle">
+                  <input id="crawlerEnabled" type="checkbox">
+                  <span>启用定时爬取</span>
+                </label>
+                <label for="crawlerInterval">执行周期（小时）</label>
+                <input id="crawlerInterval" type="number" min="1" max="168" value="24">
+                <button id="saveCrawlerScheduleBtn">保存周期</button>
+                <button id="runCrawlerBtn" class="light-btn">立即执行</button>
+              </div>
+
+              <dl class="crawler-details">
+                <div><dt>下次执行</dt><dd id="crawlerNextRun">--</dd></div>
+                <div><dt>上次开始</dt><dd id="crawlerLastStarted">--</dd></div>
+                <div><dt>上次结束</dt><dd id="crawlerLastFinished">--</dd></div>
+                <div><dt>上次结果</dt><dd id="crawlerLastResult">--</dd></div>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 个人中心 -->
+      <section id="center-panel" class="panel">
+        <div class="section-head">
+          <p class="eyebrow">PROFILE</p>
+          <h2>个人中心</h2>
+        </div>
+
+        <div class="user-card">
+          <p>当前账号：<span id="currentUser">未登录</span></p>
+          <p>当前身份：<span id="currentRole">游客</span></p>
+          <p>Token 状态：<span id="tokenState">无 Token</span></p>
+          <button id="logoutBtn" class="gray-btn profile-logout-btn">退出登录</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="./script.js"></script>
+</body>
+</html>

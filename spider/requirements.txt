@@ -1,0 +1,11 @@
+requests
+beautifulsoup4
+lxml
+pandas
+python-dateutil
+PyYAML
+pydantic
+apscheduler
+python-dotenv
+tenacity
+PyMySQL
