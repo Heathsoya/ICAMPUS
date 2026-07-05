@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 
 /**
@@ -100,9 +101,28 @@ public class AdminService {
         log.info("知识库条目删除成功 [id={}]", id);
     }
 
-    public KnowledgeSummaryVO getKnowledgeSummary(int requestedLimit) {
+    @Transactional
+    public void deleteKnowledgeBatch(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            throw new BizException(BizCode.BAD_REQUEST);
+        }
+
+        int deletedCount = 0;
+        for (Long id : new LinkedHashSet<>(ids)) {
+            if (id != null && id > 0 && knowledgeBaseRepository.deleteById(id)) {
+                deletedCount++;
+            }
+        }
+
+        log.info("知识库批量删除完成 [requested={}, deleted={}]", ids.size(), deletedCount);
+    }
+
+    public KnowledgeSummaryVO getKnowledgeSummary(int requestedPage, int requestedLimit) {
         int limit = Math.max(1, Math.min(requestedLimit, 200));
         List<KnowledgeBase> allItems = knowledgeBaseRepository.findAll();
+        int totalPages = Math.max(1, (allItems.size() + limit - 1) / limit);
+        int page = Math.min(Math.max(1, requestedPage), totalPages);
+        long offset = (long) (page - 1) * limit;
 
         KnowledgeSummaryVO summary = new KnowledgeSummaryVO();
         summary.setTotal(allItems.size());
@@ -111,6 +131,7 @@ public class AdminService {
                 .count());
         summary.setItems(allItems.stream()
                 .sorted(Comparator.comparing(KnowledgeBase::getId).reversed())
+                .skip(offset)
                 .limit(limit)
                 .map(this::toKnowledgeItem)
                 .collect(Collectors.toList()));

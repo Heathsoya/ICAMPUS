@@ -669,3 +669,90 @@ th {
     display: none;
   }
 }
+
+
+.login-tab,
+.guest-only,
+.admin-tab,
+.profile-logout-btn {
+  transition: opacity 0.2s ease;
+}
+
+.profile-logout-btn {
+  margin-top: 14px;
+}
+
+.checkbox-cell {
+  width: 54px;
+  text-align: center;
+}
+
+.checkbox-cell input,
+.knowledge-checkbox,
+#selectAllKnowledge {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--blue);
+  cursor: pointer;
+}
+
+.knowledge-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-top: 18px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #344054;
+  font-weight: 700;
+}
+
+.pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@media (max-width: 980px) {
+  .knowledge-footer,
+  .pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .knowledge-footer button,
+  .pagination button {
+    width: 100%;
+  }
+
+  .knowledge-table th:nth-child(1) {
+    width: 42px;
+  }
+
+  .knowledge-table th:nth-child(2) {
+    width: 42px;
+  }
+
+  .knowledge-table th:nth-child(4) {
+    width: 62px;
+  }
+
+  .knowledge-table th:nth-child(6) {
+    width: 82px;
+  }
+
+  .knowledge-table th:nth-child(5),
+  .knowledge-table td:nth-child(5),
+  .knowledge-table th:nth-child(7),
+  .knowledge-table td:nth-child(7) {
+    display: none;
+  }
+}
